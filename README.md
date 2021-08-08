@@ -26,8 +26,8 @@ TypeScript programmers may import the following types in order to benefit from s
 * **`type VC_CustomerRecord = { id:string, email:string, first_name?:string, last_name?:string, confirmed:boolean, admin:boolean, meta?:any }`**<br>instances of this type are returned when the settings of an already registered user are requested
 * **`type VC_CustomerUpdate = { email?:string, password?:{ old:string, new:string, confirmation:string }, first_name?:string, last_name?:string }`**<br>instances of this type are used when specific settings of an already registered user shall be changed
 * **`type VC_StorageKey = string`**<br>VoltCloud storage keys are strings with a length of up to `maxStorageKeyLength` characters
-* **`type VC_StorageValue = string | undefined`**<br>>VoltCloud storage values are strings with a length of up to `maxStorageValueLength` characters. While VoltCloud itself responds with an error when non-existing entries are read, `voltcloud-for-applications` returns `undefined` instead
-* **`type VC_StorageSet = { [Key:string]:VC_StorageValue }`**<br>a VoltCLoud storage can be seen as an associative array with literal keys and values
+* **`type VC_StorageValue = string | undefined`**<br>VoltCloud storage values are strings with a length of up to `maxStorageValueLength` characters. While VoltCloud itself responds with an error when non-existing entries are read, `voltcloud-for-applications` returns `undefined` instead
+* **`type VC_StorageSet = { [Key:string]:VC_StorageValue }`**<br>a VoltCloud storage can be seen as an associative array with literal keys and values
 
 ### exported Functions ###
 
