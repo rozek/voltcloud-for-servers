@@ -2,6 +2,8 @@
 
 a simple VoltCloud library for servers
 
+> this module is currently under active development and not yet ready for being used. Please, stay tuned.
+
 [VoltCloud.io](https://voltcloud.io) is a simple (and cheap) deployment server for web applications with integrated user management and key-value stores for both the application itself and any of its users.
 
 `voltcloud-for-applications` is a simple client library for servers based on Node.js which need access to VoltCloud and its functions. It is the counterpart of [voltcloud-for-applications](https://github.com/rozek/voltcloud-for-applications) which provides a similar functionality (but now from the viewpoint of an application user - aka "customer") for Web-based applications.
