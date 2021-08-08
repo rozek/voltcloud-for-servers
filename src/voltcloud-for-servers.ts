@@ -10,7 +10,7 @@
     ValidatorForClassifier, acceptNil, rejectNil
   } from 'javascript-interface-library'
 
-  const https = require('https')
+  import * as https from 'https'
 
 /**** VoltCloud-specific types and constants ****/
 
@@ -214,7 +214,7 @@
 
     try {
       await ResponseOf(
-        'private', 'PUT', '{{dashboard_url}}/api/app/{{application_id}}',{
+        'private', 'PUT', '{{dashboard_url}}/api/app/{{application_id}}', null, {
           subdomain:ApplicationName
         }
       )
@@ -238,7 +238,7 @@
 
     try {
       await ResponseOf(
-        'private', 'PUT', '{{dashboard_url}}/api/app/{{application_id}}',Settings
+        'private', 'PUT', '{{dashboard_url}}/api/app/{{application_id}}', null, Settings
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
@@ -709,7 +709,7 @@
       await ResponseOf(
         'private', 'PUT', '{{dashboard_url}}/api/storage/{{customer_id}}/key/{{customer_storage_key}}', {
           customer_storage_key: StorageKey
-        },StorageValue
+        }, StorageValue
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
@@ -870,7 +870,7 @@
     let Response
     try {
       Response = await ResponseOf(
-        'public', 'POST', '{{dashboard_url}}/api/auth/login', {
+        'public', 'POST', '{{dashboard_url}}/api/auth/login', null, {
           grant_type: 'password',
           username:   EMailAddress,
           password:   Password,
@@ -924,25 +924,25 @@
 
     let RequestOptions = {
       method:  Method,
-      headers: {},
+      headers: { 'content-type':'application/json' },   // VoltCloud wants it so
       timeout: Timeout
     }
       if (Mode === 'private') {
 // @ts-ignore we definitely want to index with a literal
-        RequestOptions.headers['Authorization'] = 'Bearer ' + currentAccessToken
+        RequestOptions.headers['authorization'] = 'Bearer ' + currentAccessToken
       }
 
       let RequestBody:string
       if (Data != null) {
-        if (Data instanceof Blob) {
+//      if (Data instanceof Blob) {
 // <<<<
-        } else {
+//      } else {
           RequestBody = JSON.stringify(Data)
 // @ts-ignore we definitely want to index with a literal
-          RequestOptions.headers['Content-Type']   = 'application/json'
+          RequestOptions.headers['content-type']   = 'application/json'
 // @ts-ignore we definitely want to index with a literal
-          RequestOptions.headers['Content-Length'] = RequestBody.length
-        }
+          RequestOptions.headers['content-length'] = RequestBody.length
+//      }
       }
     return new Promise((resolve, reject) => {
       let Request = https.request(resolvedURL, RequestOptions, (Response:any) => {
@@ -987,7 +987,7 @@
             default:
               if (ContentType.startsWith('application/json')) {
                 try {          // if given, try to use a VoltCloud error message
-                  let ErrorDetails = JSON.parse(Request.responseText)
+                  let ErrorDetails = JSON.parse(ResponseData)
                   if (
                     ValueIsNonEmptyString(ErrorDetails.type) &&
                     ValueIsNonEmptyString(ErrorDetails.message)
@@ -1023,6 +1023,8 @@
         })
 
         if (RequestBody != null) { Request.write(RequestBody) }
+console.log('>>>>',Request.method)
+console.log('>>>>',Request.getHeader('Content-Type'))
       Request.end()
     })
   }
