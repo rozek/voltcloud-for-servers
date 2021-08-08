@@ -17,13 +17,22 @@
   export const maxStorageKeyLength   = 255      // as mentioned in REST API docs
   export const maxStorageValueLength = 1048574           // see discussion forum
 
-  export VC_ApplicationRecord = {
+  export type VC_ApplicationRecord = {
     id:string, owner:string, subdomain:string, disabled:boolean,
     url:string, canonical_domain?:string,
     confirmation_url?:string, reset_url?:string,
     last_upload?:string, nice_links:boolean,
     cors_type:string, cors_domain?:string,
     frame_type:string, frame_domain?:string,
+  }
+
+  export type VC_ApplicationUpdate = {
+    subdomain?:string, disabled?:boolean,
+    canonical_domain?:string,
+    confirmation_url?:string, reset_url?:string,
+    nice_links?:boolean,
+    cors_type?:string, cors_domain?:string,
+    frame_type?:string, frame_domain?:string,
   }
 
   export type VC_CustomerRecord = {
@@ -48,14 +57,16 @@
   const DashboardURL = 'https://dashboard.voltcloud.io'
   const DashboardId  = 'RpYCMN'
 
+  let currentDeveloperId:       string | undefined
   let currentDeveloperAddress:  string | undefined
   let currentDeveloperPassword: string | undefined   // stored for token refresh
   let currentAccessToken:       string | undefined
 
-  let currentApplicationId: string | undefined
+  let currentApplicationId:  string | undefined
+  let currentApplicationURL: string | undefined
 
-  let currentCustomerAddress: string | undefined
   let currentCustomerId:      string | undefined
+  let currentCustomerAddress: string | undefined
 
 /**** actOnBehalfOfDeveloper ****/
 
@@ -135,6 +146,302 @@
 
   }
 
+/**** ApplicationRecord ****/
+
+  export async function ApplicationRecord ():Promise<VC_ApplicationRecord> {
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** updateApplicationRecordBy ****/
+
+  export async function updateApplicationRecordBy (
+    Settings:VC_ApplicationUpdate
+  ):Promise<void> {
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** uploadToApplication ****/
+
+  export async function uploadToApplication (
+    Archive:Blob
+  ):Promise<void> {
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** deleteApplication ****/
+
+  export async function deleteApplication ():Promise<void> {
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** ApplicationStorage ****/
+
+  export async function ApplicationStorage ():Promise<VC_StorageSet> {
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+    let Response
+    try {
+      Response = await ResponseOf(
+        'private', 'GET', '{{dashboard_url}}/api/storage/{{application_id}}'
+      )
+    } catch (Signal) {
+      switch (Signal.HTTPStatus) {
+
+
+        default: throw Signal
+      }
+    }
+
+    return Response || {}
+  }
+
+/**** ApplicationStorageEntry ****/
+
+  export async function ApplicationStorageEntry (
+    StorageKey:VC_StorageKey
+  ):Promise<VC_StorageValue> {
+    expectStorageKey('VoltCloud application storage key',StorageKey)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+    let Response
+    try {
+      Response = await ResponseOf(
+        'private', 'GET', '{{dashboard_url}}/api/storage/{{application_id}}/key/{{application_storage_key}}', {
+          application_storage_key: StorageKey
+        }
+      )
+    } catch (Signal) {
+      switch (Signal.HTTPStatus) {
+
+
+        default: throw Signal
+      }
+    }
+
+    return Response
+  }
+
+/**** setApplicationStorageEntryTo ****/
+
+  export async function setApplicationStorageEntryTo (
+    StorageKey:VC_StorageKey, StorageValue:VC_StorageValue
+  ):Promise<void> {
+    expectStorageKey    ('VoltCloud application storage key',StorageKey)
+    expectStorageValue('VoltCloud application storage value',StorageValue)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** deleteApplicationStorageEntry ****/
+
+  export async function deleteApplicationStorageEntry (
+    StorageKey:VC_StorageKey
+  ):Promise<void> {
+    expectStorageKey('VoltCloud application storage key',StorageKey)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+  }
+
+/**** clearApplicationStorage ****/
+
+  export async function clearApplicationStorage ():Promise<void> {
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** CustomerRecords ****/
+
+  export async function CustomerRecords ():Promise<VC_CustomerRecord[]> {
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** focusOnCustomer - async for for the sake of systematics only ****/
+
+  export async function focusOnCustomer (
+    CustomerId:string
+  ):Promise<void> {
+    expectNonEmptyString('VoltCloud customer id',CustomerId)
+    currentCustomerId = CustomerId
+  } // no a-priori check of the given customer id
+
+/**** focusOnCustomerWithAddress ****/
+
+  export async function focusOnCustomerWithAddress (
+    CustomerAddress:string
+  ):Promise<void> {
+    expectEMailAddress('VoltCloud customer email address',CustomerAddress)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** focusOnNewCustomer ****/
+
+  export async function focusOnNewCustomer (
+    EMailAddress:string, Password:string
+  ):Promise<void> {
+    expectEMailAddress('VoltCloud customer email address',EMailAddress)
+    expectPassword         ('VoltCloud customer password',Password)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** resendConfirmationEMailToCustomer ****/
+
+  export async function resendConfirmationEMailToCustomer (
+    EMailAddress:string
+  ):Promise<void> {
+    expectEMailAddress('VoltCloud customer email address',EMailAddress)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** confirmCustomerUsing ****/
+
+  export async function confirmCustomerUsing (Token:string):Promise<void> {
+    expectNonEmptyString('VoltCloud customer confirmation token',Token)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** startPasswordResetForCustomer ****/
+
+  export async function startPasswordResetForCustomer (
+    EMailAddress:string
+  ):Promise<void> {
+    expectEMailAddress('VoltCloud customer email address',EMailAddress)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** resetCustomerPasswordUsing ****/
+
+  export async function resetCustomerPasswordUsing (
+    Token:string, Password:string
+  ):Promise<void> {
+    expectNonEmptyString('VoltCloud password reset token',Token)
+    expectPassword         ('VoltCloud customer password',Password)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+
+  }
+
+/**** deleteCustomer ****/
+
+  export async function deleteCustomer ():Promise<void> {
+    assertDeveloperFocus()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+
+  }
+
+/**** CustomerStorage ****/
+
+  export async function CustomerStorage ():Promise<VC_StorageSet> {
+    assertDeveloperFocus()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+
+  }
+
+/**** CustomerStorageEntry ****/
+
+  export async function CustomerStorageEntry (
+    StorageKey:VC_StorageKey
+  ):Promise<VC_StorageValue> {
+    expectStorageKey('VoltCloud customer storage key',StorageKey)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+
+  }
+
+/**** setCustomerStorageEntryTo ****/
+
+  export async function setCustomerStorageEntryTo (
+    StorageKey:VC_StorageKey, StorageValue:VC_StorageValue
+  ):Promise<void> {
+    expectStorageKey    ('VoltCloud customer storage key',StorageKey)
+    expectStorageValue('VoltCloud customer storage value',StorageValue)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+
+  }
+
+/**** deleteCustomerStorageEntry ****/
+
+  export async function deleteCustomerStorageEntry (
+    StorageKey:VC_StorageKey
+  ):Promise<void> {
+    expectStorageKey('VoltCloud customer storage key',StorageKey)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+
+  }
+
+/**** clearCustomerStorage ****/
+
+  export async function clearCustomerStorage ():Promise<void> {
+    assertDeveloperFocus()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+
+  }
+
 /**** ValueIsPassword - a string following VoltCloud's password rules ****/
 
   export function ValueIsPassword (Value:any):boolean {
@@ -197,7 +504,7 @@
 /**** assertDeveloperFocus ****/
 
   function assertDeveloperFocus ():void {
-    if (currentDeveloperURL == null) throwError(
+    if (currentDeveloperId == null) throwError(
       'InvalidState: please focus on a specific VoltCloud developer first'
     )
   }
@@ -215,8 +522,10 @@
   async function loginDeveloper (
     EMailAddress:string, Password:string
   ):Promise<void> {
-    currentDeveloperId = undefined                 // avoid re-try after failure
-    currentAccessToken = undefined                                       // dto.
+    currentDeveloperId       = undefined           // avoid re-try after failure
+    currentDeveloperAddress  = undefined                                 // dto.
+    currentDeveloperPassword = undefined                                 // dto.
+    currentAccessToken       = undefined                                 // dto.
 
     let Response
     try {
@@ -258,8 +567,10 @@
     firstAttempt:boolean = true
   ):Promise<any> {
     let fullParameters = Object.assign({}, Parameters || {}, {
-      application_url:currentApplicationURL,
+      dashboard_id:   DashboardId,
+      dashboard_url:  DashboardURL,
       application_id: currentApplicationId,
+      application_url:currentApplicationURL,
       customer_id:    currentCustomerId,
     })
 
@@ -277,92 +588,102 @@
       timeout: Timeout
     }
       if (Mode === 'private') {
-        RequestOptions.headers['authorization'] = 'Bearer ' + currentAccessToken
+// @ts-ignore we definitely want to index with a literal
+        RequestOptions.headers['Authorization'] = 'Bearer ' + currentAccessToken
       }
 
-      let Body
+      let RequestBody:string
       if (Data != null) {
         if (Data instanceof Blob) {
+// <<<<
         } else {
-          Body = JSON.stringify(Data)
+          RequestBody = JSON.stringify(Data)
+// @ts-ignore we definitely want to index with a literal
           RequestOptions.headers['Content-Type']   = 'application/json'
-          RequestOptions.headers['Content-Length'] = Buffer.byteLength(Body)
+// @ts-ignore we definitely want to index with a literal
+          RequestOptions.headers['Content-Length'] = RequestBody.length
         }
       }
-
-
     return new Promise((resolve, reject) => {
-      let Request = new XMLHttpRequest()
-        Request.open(Method, resolvedURL, true)
-
-
-        Request.timeout = Timeout
-        Request.addEventListener('timeout', () => {
-          reject(namedError('RequestTimedout: VoltCloud request timed out'))
+      let Request = https.request(resolvedURL, RequestOptions, (Response:any) => {
+        Response.on('error', (Error:any) => {
+          reject(namedError(
+            'RequestFailed: VoltCloud request failed (error code = ' +
+            quoted(Error.code) + ')'
+          ))
         })
 
-        Request.addEventListener('abort', () => {
+        let ResponseData:string = ''
+        Response.on('data', (Chunk:string) => ResponseData += Chunk)
+        Response.on('end', () => {
+          let StatusCode  = Response.statusCode
+          let ContentType = Response.headers['content-type'] || ''
+          switch (true) {
+            case (StatusCode >= 200) && (StatusCode < 300):
+              switch (true) {
+                case ContentType.startsWith('application/json'):
+                  return resolve(JSON.parse(ResponseData))
+                default:
+                  return reject(namedError(
+                    'RequestFailed: unexpected response content type ' +
+                    quoted(ContentType || '(missing)'), {
+                      ContentType, HTTPResponse:ResponseData
+                    }
+                  ))
+              }
+            case (StatusCode === 401):
+              if (firstAttempt) {         // try to "refresh" the access token
+                return loginDeveloper(
+                  currentDeveloperAddress as string,currentDeveloperPassword as string
+                )
+                .then(() => {                // try request again, but only once
+                  ResponseOf(Mode, Method, URL, Parameters, Data, false)
+                  .then ((Result) => resolve(Result))
+                  .catch((Signal) => reject(Signal))
+                })
+                .catch((Signal) => reject(Signal))
+              }
+              return reject(namedError('AuthorizationFailure: VoltCloud request could not be authorized'))
+            default:
+              if (ContentType.startsWith('application/json')) {
+                try {          // if given, try to use a VoltCloud error message
+                  let ErrorDetails = JSON.parse(Request.responseText)
+                  if (
+                    ValueIsNonEmptyString(ErrorDetails.type) &&
+                    ValueIsNonEmptyString(ErrorDetails.message)
+                  ) {
+                    return reject(namedError(
+                      ErrorDetails.type + ': ' + ErrorDetails.message, {
+                        HTTPStatus:StatusCode, HTTPResponse:ResponseData
+                      }
+                    ))
+                  }
+                } catch (Signal) { /* otherwise create a generic error message */ }
+              }
+
+              return reject(namedError('RequestFailed: VoltCloud request failed', {
+                HTTPStatus:StatusCode, HTTPResponse:ResponseData
+              }))
+          }
+        })
+      })
+        Request.on('aborted', () => {
           reject(namedError('RequestAborted: VoltCloud request has been aborted'))
         })
 
-        Request.addEventListener('error', () => {
-          if (                              // try to "refresh" the access token
-            firstAttempt && (Request.status === 401) &&
-            (currentCustomerAddress != null) && (currentCustomerPassword != null)
-          ) {
-            return loginCustomer(currentCustomerAddress,currentCustomerPassword)
-            .then(() => {                    // try request again, but only once
-              ResponseOf(Mode, Method, URL, Parameters, Data, false)
-              .then ((Result) => resolve(Result))
-              .catch((Signal) => reject(Signal))
-            })
-            .catch((Signal) => reject(Signal))
-          }
-
-          let ContentType = Request.getResponseHeader('content-type') || ''
-          if (ContentType.startsWith('application/json')) {
-            try {              // if given, try to use a VoltCloud error message
-              let ErrorDetails = JSON.parse(Request.responseText)
-              if (
-                ValueIsNonEmptyString(ErrorDetails.type) &&
-                ValueIsNonEmptyString(ErrorDetails.message)
-              ) {
-                return reject(namedError(
-                  ErrorDetails.type + ': ' + ErrorDetails.message, {
-                    HTTPStatus:Request.status, HTTPResponse:Request.responseText
-                  }
-                ))
-              }
-            } catch (Signal) { /* otherwise create a generic error message */ }
-          }
-
-          if (Request.status === 401) {
-            return reject(namedError('AuthorizationFailure: VoltCloud request could not be authorized'))
-          } else {
-            return reject(namedError('RequestFailed: VoltCloud request failed', {
-              HTTPStatus:Request.status, HTTPResponse:Request.responseText
-            }))
-          }
+        Request.on('timeout', () => {
+          reject(namedError('RequestTimedout: VoltCloud request timed out'))
         })
 
-        Request.addEventListener('load', () => {
-          let ContentType = Request.getResponseHeader('content-type') || ''
-          switch (true) {
-            case (Request.responseText == null):
-              return resolve(null)
-            case ContentType.startsWith('application/json'):
-              return resolve(JSON.parse(Request.responseText))
-            default:
-              return reject(namedError(
-                'RequestFailed: unexpected response content type ' +
-                quoted(ContentType || '(missing)'), {
-                  ContentType, HTTPResponse:Request.responseText
-                }
-              ))
-          }
+        Request.on('error', (Error:any) => {
+          reject(namedError(
+            'RequestFailed: VoltCloud request failed before actually sending ' +
+            'data (error code = ' + quoted(Error.code) + ')'
+          ))
         })
-      Request.setRequestHeader('Content-Type','application/json')
-      Request.send(Data == null ? null : JSON.stringify(Data))
+
+        if (RequestBody != null) { Request.write(RequestBody) }
+      Request.end()
     })
   }
 
