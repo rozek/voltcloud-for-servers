@@ -1,3 +1,5 @@
+import * as https from 'https';
+
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
@@ -230,7 +232,6 @@ function quoted(Text, Quote) {
 }
 
 //----------------------------------------------------------------------------//
-var https = require('https');
 /**** VoltCloud-specific types and constants ****/
 var maxStorageKeyLength = 255; // as mentioned in REST API docs
 var maxStorageValueLength = 1048574; // see discussion forum
@@ -417,7 +418,7 @@ function changeApplicationNameTo(ApplicationName) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{dashboard_url}}/api/app/{{application_id}}', {
+                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{dashboard_url}}/api/app/{{application_id}}', null, {
                             subdomain: ApplicationName
                         })];
                 case 2:
@@ -447,7 +448,7 @@ function updateApplicationRecordBy(Settings) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{dashboard_url}}/api/app/{{application_id}}', Settings)];
+                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{dashboard_url}}/api/app/{{application_id}}', null, Settings)];
                 case 2:
                     _a.sent();
                     return [3 /*break*/, 4];
@@ -1155,7 +1156,7 @@ function loginDeveloper(EMailAddress, Password) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('public', 'POST', '{{dashboard_url}}/api/auth/login', {
+                    return [4 /*yield*/, ResponseOf('public', 'POST', '{{dashboard_url}}/api/auth/login', null, {
                             grant_type: 'password',
                             username: EMailAddress,
                             password: Password,
@@ -1209,22 +1210,23 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
             }
             RequestOptions = {
                 method: Method,
-                headers: {},
+                headers: { 'content-type': 'application/json' },
                 timeout: Timeout
             };
             if (Mode === 'private') {
                 // @ts-ignore we definitely want to index with a literal
-                RequestOptions.headers['Authorization'] = 'Bearer ' + currentAccessToken;
+                RequestOptions.headers['authorization'] = 'Bearer ' + currentAccessToken;
             }
             if (Data != null) {
-                if (Data instanceof Blob) ;
-                else {
-                    RequestBody = JSON.stringify(Data);
-                    // @ts-ignore we definitely want to index with a literal
-                    RequestOptions.headers['Content-Type'] = 'application/json';
-                    // @ts-ignore we definitely want to index with a literal
-                    RequestOptions.headers['Content-Length'] = RequestBody.length;
-                }
+                //      if (Data instanceof Blob) {
+                // <<<<
+                //      } else {
+                RequestBody = JSON.stringify(Data);
+                // @ts-ignore we definitely want to index with a literal
+                RequestOptions.headers['content-type'] = 'application/json';
+                // @ts-ignore we definitely want to index with a literal
+                RequestOptions.headers['content-length'] = RequestBody.length;
+                //      }
             }
             return [2 /*return*/, new Promise(function (resolve, reject) {
                     var Request = https.request(resolvedURL, RequestOptions, function (Response) {
@@ -1263,7 +1265,7 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
                                 default:
                                     if (ContentType.startsWith('application/json')) {
                                         try { // if given, try to use a VoltCloud error message
-                                            var ErrorDetails = JSON.parse(Request.responseText);
+                                            var ErrorDetails = JSON.parse(ResponseData);
                                             if (ValueIsNonEmptyString(ErrorDetails.type) &&
                                                 ValueIsNonEmptyString(ErrorDetails.message)) {
                                                 return reject(namedError(ErrorDetails.type + ': ' + ErrorDetails.message, {
@@ -1292,6 +1294,8 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
                     if (RequestBody != null) {
                         Request.write(RequestBody);
                     }
+                    console.log('>>>>', Request.method);
+                    console.log('>>>>', Request.getHeader('Content-Type'));
                     Request.end();
                 })];
         });
