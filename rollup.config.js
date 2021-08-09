@@ -9,6 +9,7 @@ export default {
   input: './src/voltcloud-for-servers.ts',
   output: [
     {
+/*
       file:     './dist/voltcloud-for-servers.js',
       format:    'umd', // builds for both Node.js and Browser
       name:      'VoltCloud', // required for UMD modules
@@ -17,6 +18,7 @@ export default {
       exports:   'auto',
       plugins:   [terser({ format:{ comments:false, safari10:true } })],
     },{
+*/
       file:     './dist/voltcloud-for-servers.esm.js',
       format:   'esm',
       sourcemap:true
