@@ -924,7 +924,7 @@
 
     let RequestOptions = {
       method:  Method,
-      headers: { 'content-type':'application/json' },   // VoltCloud wants it so
+      headers: {},
       timeout: Timeout
     }
       if (Mode === 'private') {
