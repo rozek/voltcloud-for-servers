@@ -20,7 +20,7 @@ a simple VoltCloud library for servers
 
 `voltcloud-for-servers` exports the following constants:
 
-* **`ApplicationNamePattern = /^[0-9a-z][-0-9a-z]*$/`**<br>this value defines the RegExp pattern, any VoltCloud application name must match to
+* **`const ApplicationNamePattern = /^[0-9a-z][-0-9a-z]*$/`**<br>this value defines the regular expression pattern, any VoltCloud application name must match to
 * **`const maxApplicationNameLength = 63`**<br>this value defines the maximum length of any VoltCloud application name
 * **`const maxStorageKeyLength = 255`**<br>this value defines the maximum length of any *key* in a VoltCloud key-value store
 * **`const maxStorageValueLength = 1048574`**<br>this value defines the maximum length of any *value* in a VoltCloud key-value store
@@ -29,8 +29,11 @@ a simple VoltCloud library for servers
 
 TypeScript programmers may import the following types in order to benefit from static type checking (JavaScript programmers may simply skip this section):
 
-* **`type VC_CustomerRecord = { id:string, email:string, first_name?:string, last_name?:string, confirmed:boolean, admin:boolean, meta?:any }`**<br>instances of this type are returned when the settings of an already registered user are requested
-* **`type VC_CustomerUpdate = { email?:string, password?:{ old:string, new:string, confirmation:string }, first_name?:string, last_name?:string }`**<br>instances of this type are used when specific settings of an already registered user shall be changed
+* **`type VC_ApplicationName = string`**<br>application names must be string with 1...`maxApplicationNameLength` characters matching the regular expression `ApplicationNamePattern`
+* **`type VC_ApplicationRecord = {id:string, owner:string, subdomain:string, disabled:boolean, url:string, canonical_domain?:string, confirmation_url?:string, reset_url?:string, last_upload?:string, nice_links:boolean, cors_type:string, cors_domain?:string, frame_type:string, frame_domain?:string}`**<br>instances of this type are returned when details of an existing application are requested
+* **`type VC_ApplicationUpdate = {subdomain?:string, disabled?:boolean, canonical_domain?:string, confirmation_url?:string, reset_url?:string, nice_links?:boolean, cors_type?:string, cors_domain?:string, frame_type?:string, frame_domain?:string}`**<br>instances of this type are used when specific details of an existing application shall be changed
+* **`type VC_CustomerRecord = { id:string, email:string, first_name?:string, last_name?:string, confirmed:boolean, admin:boolean, meta?:any }`**<br>instances of this type are returned when details of an already registered user are requested
+* **`type VC_CustomerUpdate = { email?:string, password?:{ old:string, new:string, confirmation:string }, first_name?:string, last_name?:string }`**<br>instances of this type are used when specific details of an already registered user shall be changed
 * **`type VC_StorageKey = string`**<br>VoltCloud storage keys are strings with a length of up to `maxStorageKeyLength` characters
 * **`type VC_StorageValue = string | undefined`**<br>VoltCloud storage values are strings with a length of up to `maxStorageValueLength` characters. While VoltCloud itself responds with an error when non-existing entries are read, `voltcloud-for-applications` returns `undefined` instead
 * **`type VC_StorageSet = { [Key:string]:VC_StorageValue }`**<br>a VoltCloud storage can be seen as an associative array with literal keys and values
