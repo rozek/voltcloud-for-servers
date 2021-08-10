@@ -6,7 +6,7 @@ a simple VoltCloud library for servers
 
 [VoltCloud.io](https://voltcloud.io) is a simple (and cheap) deployment server for web applications with integrated user management and key-value stores for both the application itself and any of its users.
 
-`voltcloud-for-applications` is a simple client library for servers based on Node.js which need access to VoltCloud and its functions. It is the counterpart of [voltcloud-for-applications](https://github.com/rozek/voltcloud-for-applications) which provides a similar functionality (but now from the viewpoint of an application user - aka "customer") for Web-based applications.
+`voltcloud-for-applications` is a simple client library for servers based on Node.js which need access to VoltCloud and its functions. It is the counterpart of [voltcloud-for-applications](https://github.com/rozek/voltcloud-for-applications) which provides a similar functionality (but from the viewpoint of an application user - aka "customer") for Web-based applications.
 
 > Please note: the author is not affiliated with the NSB Corporation in any way. If you want to blame any of the author's VoltCloud-related tools and libraries for some misbehaviour, it's not the fault of George Henne and his team - it is the author's mistake!
 
