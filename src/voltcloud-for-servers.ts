@@ -653,6 +653,17 @@
       CustomerId = currentCustomerId as string
     }
 
+  /**** custom implementation ****/
+
+    let CustomerRecordList = await CustomerRecords()
+    for (let i = 0, l = CustomerRecordList.length; i < l; i++) {
+      let CustomerRecord = CustomerRecordList[i]
+      if (CustomerRecord.id = CustomerId) { return CustomerRecord }
+    }
+
+    return undefined
+
+/*
     let Response
     try {
       Response = await ResponseOf(
@@ -668,37 +679,7 @@
     }
 
     return Response
-  }
-
-/**** updateCustomerRecordBy ****/
-
-  export async function updateCustomerRecordBy (
-    Settings:VC_CustomerUpdate
-  ):Promise<void> {
-    expectPlainObject('VoltCloud customer settings',Settings)
-
-    assertDeveloperFocus()
-    assertApplicationFocus()
-    assertCustomerFocus()
-
-    let Response
-    try {
-      Response = await ResponseOf(
-        'private', 'PUT', '{{application_url}}/api/user/{{customer_id}}', null, Settings
-      )
-    } catch (Signal) {
-      switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
-        default: throw Signal
-      }
-    }
-
-    if ((Response != null) && (Response.id === currentCustomerId)) {
-//    currentCustomerId      = Response.id
-      currentCustomerAddress = Response.email              // might have changed
-    } else {
-      throwError('InternalError: could not analyze response for registration request')
-    }
+*/
   }
 
 /**** deleteCustomer ****/
@@ -832,7 +813,7 @@
 
     try {
       await ResponseOf(
-        'private', 'DELETE', '{{application_url}}/api/storage/{{customer_id}}'
+        'private', 'DELETE', '{{dashboard_url}}/api/storage/{{customer_id}}'
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
@@ -932,7 +913,7 @@
 /**** assertCustomerFocus ****/
 
   function assertCustomerFocus ():void {
-    if (currentAccessToken == null) throwError(
+    if (currentCustomerId == null) throwError(
       'InvalidState: please focus on a specific VoltCloud application customer first'
     )
   }
