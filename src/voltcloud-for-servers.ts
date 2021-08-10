@@ -670,6 +670,37 @@
     return Response
   }
 
+/**** updateCustomerRecordBy ****/
+
+  export async function updateCustomerRecordBy (
+    Settings:VC_CustomerUpdate
+  ):Promise<void> {
+    expectPlainObject('VoltCloud customer settings',Settings)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+    let Response
+    try {
+      Response = await ResponseOf(
+        'private', 'PUT', '{{application_url}}/api/user/{{customer_id}}', null, Settings
+      )
+    } catch (Signal) {
+      switch (Signal.HTTPStatus) {
+// no knowledge about HTTP status Codes yet
+        default: throw Signal
+      }
+    }
+
+    if ((Response != null) && (Response.id === currentCustomerId)) {
+//    currentCustomerId      = Response.id
+      currentCustomerAddress = Response.email              // might have changed
+    } else {
+      throwError('InternalError: could not analyze response for registration request')
+    }
+  }
+
 /**** deleteCustomer ****/
 
   export async function deleteCustomer ():Promise<void> {
