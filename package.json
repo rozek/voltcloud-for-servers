@@ -43,6 +43,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "chai": "^4.3.4",
     "javascript-interface-library": "^1.0.0"
   }
 }
