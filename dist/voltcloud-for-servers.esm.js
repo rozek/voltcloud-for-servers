@@ -1311,8 +1311,9 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
                     if (RequestBody != null) {
                         Request.write(RequestBody);
                     }
-                    console.log('>>>>', Request.method, resolvedURL);
-                    console.log('>>>>', Request.getHeader('Content-Type'));
+                    console.log('  >>', Request.method, resolvedURL);
+                    if (Request.getHeader('Content-Type') != null)
+                        console.log('  >>', Request.getHeader('Content-Type'));
                     Request.end();
                 })];
         });
