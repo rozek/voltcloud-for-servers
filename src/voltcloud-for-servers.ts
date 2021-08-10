@@ -185,7 +185,7 @@
 
 /**** ApplicationRecord ****/
 
-  export async function ApplicationRecord ():Promise<VC_ApplicationRecord> {
+  export async function ApplicationRecord ():Promise<VC_ApplicationRecord | undefined> {
     assertDeveloperFocus()
     assertApplicationFocus()
 
@@ -315,7 +315,7 @@
 
   export async function ApplicationStorageEntry (
     StorageKey:VC_StorageKey
-  ):Promise<VC_StorageValue> {
+  ):Promise<VC_StorageValue | undefined> {
     expectStorageKey('VoltCloud application storage key',StorageKey)
 
     assertDeveloperFocus()
@@ -638,6 +638,38 @@
     }
   }
 
+/**** CustomerRecord ****/
+
+  export async function CustomerRecord (
+    CustomerId:string
+  ):Promise<VC_CustomerRecord | undefined> {
+    allowNonEmptyString('VoltCloud customer id',CustomerId)
+
+    assertDeveloperFocus()
+    assertApplicationFocus()
+
+    if (CustomerId == null) {
+      assertCustomerFocus()
+      CustomerId = currentCustomerId as string
+    }
+
+    let Response
+    try {
+      Response = await ResponseOf(
+        'private', 'GET', '{{application_url}}/api/user/{{customer_id}}',{
+          customer_id:CustomerId
+        }
+      )
+    } catch (Signal) {
+      switch (Signal.HTTPStatus) {
+// no knowledge about HTTP status Codes yet
+        default: throw Signal
+      }
+    }
+
+    return Response
+  }
+
 /**** deleteCustomer ****/
 
   export async function deleteCustomer ():Promise<void> {
@@ -683,7 +715,7 @@
 
   export async function CustomerStorageEntry (
     StorageKey:VC_StorageKey
-  ):Promise<VC_StorageValue> {
+  ):Promise<VC_StorageValue | undefined> {
     expectStorageKey('VoltCloud customer storage key',StorageKey)
 
     assertDeveloperFocus()
@@ -1042,8 +1074,8 @@
         })
 
         if (RequestBody != null) { Request.write(RequestBody) }
-console.log('>>>>',Request.method,resolvedURL)
-console.log('>>>>',Request.getHeader('Content-Type'))
+console.log('  >>',Request.method,resolvedURL)
+if (Request.getHeader('Content-Type') != null) console.log('  >>',Request.getHeader('Content-Type'))
       Request.end()
     })
   }
