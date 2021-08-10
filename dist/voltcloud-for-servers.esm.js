@@ -165,6 +165,8 @@ function FunctionWithName(originalFunction, desiredName) {
         '}');
     return renamed(originalFunction);
 } // also works with older JavaScript engines
+/**** allow/expect[ed]NonEmptyString ****/
+var allowNonEmptyString = /*#__PURE__*/ ValidatorForClassifier(ValueIsNonEmptyString, acceptNil, 'non-empty literal string');
 var expectNonEmptyString = /*#__PURE__*/ ValidatorForClassifier(ValueIsNonEmptyString, rejectNil, 'non-empty literal string');
 var expectPlainObject = /*#__PURE__*/ ValidatorForClassifier(ValueIsPlainObject, rejectNil, '"plain" JavaScript object');
 /**** allow/expect[ed]EMailAddress ****/
@@ -233,6 +235,8 @@ function quoted(Text, Quote) {
 
 //----------------------------------------------------------------------------//
 /**** VoltCloud-specific types and constants ****/
+var ApplicationNamePattern = /^[0-9a-z][-0-9a-z]*$/; //see dashboard
+var maxApplicationNameLength = 63; // see discussion forum
 var maxStorageKeyLength = 255; // as mentioned in REST API docs
 var maxStorageValueLength = 1048574; // see discussion forum
 /**** internal constants and variables ****/
@@ -360,7 +364,7 @@ function focusOnNewApplication() {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('private', 'POST', '{{dashboard_url}}/api/app')];
+                    return [4 /*yield*/, ResponseOf('private', 'POST', '{{dashboard_url}}/api/app', null, {})];
                 case 2:
                     Response = _a.sent();
                     return [3 /*break*/, 4];
@@ -474,18 +478,24 @@ function uploadToApplication(Archive) {
     });
 }
 /**** deleteApplication ****/
-function deleteApplication() {
+function deleteApplication(ApplicationId) {
     return __awaiter(this, void 0, void 0, function () {
         var Signal_6;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    allowNonEmptyString('VoltCloud application id', ApplicationId);
                     assertDeveloperFocus();
-                    assertApplicationFocus();
+                    if (ApplicationId == null) {
+                        assertApplicationFocus();
+                        ApplicationId = currentApplicationId;
+                    }
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('private', 'DELETE', '{{dashboard_url}}/api/app/{{application_id}}')];
+                    return [4 /*yield*/, ResponseOf('private', 'DELETE', '{{dashboard_url}}/api/app/{{application_id}}', {
+                            application_id: ApplicationId
+                        })];
                 case 2:
                     _a.sent();
                     return [3 /*break*/, 4];
@@ -550,6 +560,7 @@ function ApplicationStorageEntry(StorageKey) {
                     Signal_8 = _a.sent();
                     switch (Signal_8.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
+                        case 404: return [2 /*return*/, undefined];
                         default: throw Signal_8;
                     }
                 case 4: return [2 /*return*/, Response];
@@ -611,6 +622,7 @@ function deleteApplicationStorageEntry(StorageKey) {
                     Signal_10 = _a.sent();
                     switch (Signal_10.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
+                        case 404: return [2 /*return*/];
                         default: throw Signal_10;
                     }
                 case 4: return [2 /*return*/];
@@ -999,6 +1011,7 @@ function CustomerStorageEntry(StorageKey) {
                     Signal_20 = _a.sent();
                     switch (Signal_20.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
+                        case 404: return [2 /*return*/, undefined];
                         default: throw Signal_20;
                     }
                 case 4: return [2 /*return*/, Response];
@@ -1062,6 +1075,7 @@ function deleteCustomerStorageEntry(StorageKey) {
                     Signal_22 = _a.sent();
                     switch (Signal_22.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
+                        case 404: return [2 /*return*/];
                         default: throw Signal_22;
                     }
                 case 4: return [2 /*return*/];
@@ -1107,8 +1121,9 @@ var allowPassword = ValidatorForClassifier(ValueIsPassword, acceptNil, 'valid Vo
 var expectPassword = ValidatorForClassifier(ValueIsPassword, rejectNil, 'valid VoltCloud password'), expectedPassword = expectPassword;
 /**** ValueIsApplicationName - a string suitable as a VoltCloud application name ****/
 function ValueIsApplicationName(Value) {
-    return (ValueIsString(Value) && (Value.length >= 1) &&
-        /^[0-9a-z][-0-9a-z]*$/.test(Value));
+    return (ValueIsString(Value) &&
+        (Value.length >= 1) && (Value.length <= maxApplicationNameLength) &&
+        ApplicationNamePattern.test(Value));
 }
 /**** allow/expect[ed]ApplicationName ****/
 var allowApplicationName = ValidatorForClassifier(ValueIsApplicationName, acceptNil, 'valid VoltCloud application name'), allowedApplicationName = allowApplicationName;
@@ -1196,13 +1211,13 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
     return __awaiter(this, void 0, void 0, function () {
         var fullParameters, resolvedURL, RequestOptions, RequestBody;
         return __generator(this, function (_a) {
-            fullParameters = Object.assign({}, Parameters || {}, {
+            fullParameters = Object.assign({}, {
                 dashboard_id: DashboardId,
                 dashboard_url: DashboardURL,
                 application_id: currentApplicationId,
                 application_url: currentApplicationURL,
                 customer_id: currentCustomerId,
-            });
+            }, Parameters || {});
             resolvedURL = resolved(URL, fullParameters);
             if (Method === 'GET') {
                 resolvedURL += ((resolvedURL.indexOf('?') < 0 ? '?' : '&') +
@@ -1210,7 +1225,7 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
             }
             RequestOptions = {
                 method: Method,
-                headers: { 'content-type': 'application/json' },
+                headers: {},
                 timeout: Timeout
             };
             if (Mode === 'private') {
@@ -1240,6 +1255,8 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
                             var StatusCode = Response.statusCode;
                             var ContentType = Response.headers['content-type'] || '';
                             switch (true) {
+                                case (StatusCode === 204):
+                                    return resolve(undefined);
                                 case (StatusCode >= 200) && (StatusCode < 300):
                                     switch (true) {
                                         case ContentType.startsWith('application/json'):
@@ -1294,7 +1311,7 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
                     if (RequestBody != null) {
                         Request.write(RequestBody);
                     }
-                    console.log('>>>>', Request.method);
+                    console.log('>>>>', Request.method, resolvedURL);
                     console.log('>>>>', Request.getHeader('Content-Type'));
                     Request.end();
                 })];
@@ -1331,5 +1348,5 @@ function namedError(Message, Details) {
     return Result;
 }
 
-export { ApplicationRecord, ApplicationRecords, ApplicationStorage, ApplicationStorageEntry, CustomerRecords, CustomerStorage, CustomerStorageEntry, ValueIsApplicationName, ValueIsPassword, ValueIsStorageKey, ValueIsStorageValue, actOnBehalfOfDeveloper, allowApplicationName, allowPassword, allowStorageKey, allowStorageValue, allowedApplicationName, allowedPassword, allowedStorageKey, allowedStorageValue, changeApplicationNameTo, clearApplicationStorage, clearCustomerStorage, confirmCustomerUsing, deleteApplication, deleteApplicationStorageEntry, deleteCustomer, deleteCustomerStorageEntry, expectApplicationName, expectPassword, expectStorageKey, expectStorageValue, expectedApplicationName, expectedPassword, expectedStorageKey, expectedStorageValue, focusOnApplication, focusOnApplicationCalled, focusOnCustomer, focusOnCustomerWithAddress, focusOnNewApplication, focusOnNewCustomer, maxStorageKeyLength, maxStorageValueLength, resendConfirmationEMailToCustomer, resetCustomerPasswordUsing, setApplicationStorageEntryTo, setCustomerStorageEntryTo, startPasswordResetForCustomer, updateApplicationRecordBy, uploadToApplication };
+export { ApplicationNamePattern, ApplicationRecord, ApplicationRecords, ApplicationStorage, ApplicationStorageEntry, CustomerRecords, CustomerStorage, CustomerStorageEntry, ValueIsApplicationName, ValueIsPassword, ValueIsStorageKey, ValueIsStorageValue, actOnBehalfOfDeveloper, allowApplicationName, allowPassword, allowStorageKey, allowStorageValue, allowedApplicationName, allowedPassword, allowedStorageKey, allowedStorageValue, changeApplicationNameTo, clearApplicationStorage, clearCustomerStorage, confirmCustomerUsing, deleteApplication, deleteApplicationStorageEntry, deleteCustomer, deleteCustomerStorageEntry, expectApplicationName, expectPassword, expectStorageKey, expectStorageValue, expectedApplicationName, expectedPassword, expectedStorageKey, expectedStorageValue, focusOnApplication, focusOnApplicationCalled, focusOnCustomer, focusOnCustomerWithAddress, focusOnNewApplication, focusOnNewCustomer, maxApplicationNameLength, maxStorageKeyLength, maxStorageValueLength, resendConfirmationEMailToCustomer, resetCustomerPasswordUsing, setApplicationStorageEntryTo, setCustomerStorageEntryTo, startPasswordResetForCustomer, updateApplicationRecordBy, uploadToApplication };
 //# sourceMappingURL=voltcloud-for-servers.esm.js.map

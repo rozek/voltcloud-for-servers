@@ -1,4 +1,6 @@
 /**** VoltCloud-specific types and constants ****/
+export declare const ApplicationNamePattern: RegExp;
+export declare const maxApplicationNameLength = 63;
 export declare const maxStorageKeyLength = 255;
 export declare const maxStorageValueLength = 1048574;
 export declare type VC_ApplicationName = string;
@@ -73,7 +75,7 @@ export declare function updateApplicationRecordBy(Settings: VC_ApplicationUpdate
 /**** uploadToApplication ****/
 export declare function uploadToApplication(Archive: Blob): Promise<void>;
 /**** deleteApplication ****/
-export declare function deleteApplication(): Promise<void>;
+export declare function deleteApplication(ApplicationId: string): Promise<void>;
 /**** ApplicationStorage ****/
 export declare function ApplicationStorage(): Promise<VC_StorageSet>;
 /**** ApplicationStorageEntry ****/
