@@ -236,9 +236,7 @@
   } else {
     console.log('- using existing customer "' + CustomerAddress + '"')
 
-console.log('###')
     await focusOnCustomerWithAddress(CustomerAddress) // needed here in order...
-console.log('###')
   }      // ...to be able to access a customer storage record in this smoke test
 
 /**** if need be: perform customer confirmation ****/
@@ -263,6 +261,8 @@ console.log('###')
       CustomerInfo = await CustomerRecord()
       expect(CustomerInfo).to.be.an('object')
       expect(CustomerInfo.id).to.equal(CustomerId)
+
+      await setCustomerStorageEntryTo('password-reset','pending')
     }
   }
 
@@ -283,8 +283,6 @@ console.log('###')
       console.log('please look for that email and copy the contained token into environment')
       console.log('variable "customer_password_reset_token"')
 
-      await setCustomerStorageEntryTo('password-reset','pending')
-
       process.exit(0)
     } else {
       console.log('- performing password reset for customer "' + CustomerAddress + '"')
@@ -304,6 +302,8 @@ console.log('###')
 /**** test CustomerStorage management ****/
 
   console.log('- testing customer storage management')
+
+  await clearCustomerStorage()                 // removes "password-reset" entry
 
   StoreValue = await CustomerStorageEntry('missing-key')
   expect(StoreValue).not.to.exist
