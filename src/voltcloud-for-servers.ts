@@ -397,7 +397,7 @@
 
     try {
       await ResponseOf(
-        'private', 'DELETE', '{{application_url}}/api/storage/{{application_id}}'
+        'private', 'DELETE', '{{dashboard_url}}/api/storage/{{application_id}}'
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
