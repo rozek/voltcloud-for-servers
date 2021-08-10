@@ -67,7 +67,7 @@ export declare function focusOnApplicationCalled(ApplicationName: VC_Application
 /**** focusOnNewApplication ****/
 export declare function focusOnNewApplication(): Promise<void>;
 /**** ApplicationRecord ****/
-export declare function ApplicationRecord(): Promise<VC_ApplicationRecord>;
+export declare function ApplicationRecord(): Promise<VC_ApplicationRecord | undefined>;
 /**** changeApplicationNameTo ****/
 export declare function changeApplicationNameTo(ApplicationName: VC_ApplicationName): Promise<void>;
 /**** updateApplicationRecordBy ****/
@@ -79,7 +79,7 @@ export declare function deleteApplication(ApplicationId: string): Promise<void>;
 /**** ApplicationStorage ****/
 export declare function ApplicationStorage(): Promise<VC_StorageSet>;
 /**** ApplicationStorageEntry ****/
-export declare function ApplicationStorageEntry(StorageKey: VC_StorageKey): Promise<VC_StorageValue>;
+export declare function ApplicationStorageEntry(StorageKey: VC_StorageKey): Promise<VC_StorageValue | undefined>;
 /**** setApplicationStorageEntryTo ****/
 export declare function setApplicationStorageEntryTo(StorageKey: VC_StorageKey, StorageValue: VC_StorageValue): Promise<void>;
 /**** deleteApplicationStorageEntry ****/
@@ -102,12 +102,16 @@ export declare function confirmCustomerUsing(Token: string): Promise<void>;
 export declare function startPasswordResetForCustomer(EMailAddress?: string): Promise<void>;
 /**** resetCustomerPasswordUsing ****/
 export declare function resetCustomerPasswordUsing(Token: string, Password: string): Promise<void>;
+/**** CustomerRecord ****/
+export declare function CustomerRecord(CustomerId: string): Promise<VC_CustomerRecord | undefined>;
+/**** updateCustomerRecordBy ****/
+export declare function updateCustomerRecordBy(Settings: VC_CustomerUpdate): Promise<void>;
 /**** deleteCustomer ****/
 export declare function deleteCustomer(): Promise<void>;
 /**** CustomerStorage ****/
 export declare function CustomerStorage(): Promise<VC_StorageSet>;
 /**** CustomerStorageEntry ****/
-export declare function CustomerStorageEntry(StorageKey: VC_StorageKey): Promise<VC_StorageValue>;
+export declare function CustomerStorageEntry(StorageKey: VC_StorageKey): Promise<VC_StorageValue | undefined>;
 /**** setCustomerStorageEntryTo ****/
 export declare function setCustomerStorageEntryTo(StorageKey: VC_StorageKey, StorageValue: VC_StorageValue): Promise<void>;
 /**** deleteCustomerStorageEntry ****/

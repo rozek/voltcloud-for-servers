@@ -687,7 +687,7 @@ function CustomerRecords() {
 /**** focusOnCustomer - async for for the sake of systematics only ****/
 function focusOnCustomer(CustomerId) {
     return __awaiter(this, void 0, void 0, function () {
-        var CustomerRecordList, i, l, CustomerRecord;
+        var CustomerRecordList, i, l, CustomerRecord_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -700,10 +700,10 @@ function focusOnCustomer(CustomerId) {
                 case 1:
                     CustomerRecordList = _a.sent();
                     for (i = 0, l = CustomerRecordList.length; i < l; i++) {
-                        CustomerRecord = CustomerRecordList[i];
-                        if (CustomerRecord.id === CustomerId) {
+                        CustomerRecord_1 = CustomerRecordList[i];
+                        if (CustomerRecord_1.id === CustomerId) {
                             currentCustomerId = CustomerId;
-                            currentCustomerAddress = CustomerRecord.email;
+                            currentCustomerAddress = CustomerRecord_1.email;
                             return [2 /*return*/];
                         }
                     }
@@ -717,7 +717,7 @@ function focusOnCustomer(CustomerId) {
 /**** focusOnCustomerWithAddress ****/
 function focusOnCustomerWithAddress(CustomerAddress) {
     return __awaiter(this, void 0, void 0, function () {
-        var CustomerRecordList, i, l, CustomerRecord;
+        var CustomerRecordList, i, l, CustomerRecord_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -730,9 +730,9 @@ function focusOnCustomerWithAddress(CustomerAddress) {
                 case 1:
                     CustomerRecordList = _a.sent();
                     for (i = 0, l = CustomerRecordList.length; i < l; i++) {
-                        CustomerRecord = CustomerRecordList[i];
-                        if (CustomerRecord.email === CustomerAddress) {
-                            currentCustomerId = CustomerRecord.id;
+                        CustomerRecord_2 = CustomerRecordList[i];
+                        if (CustomerRecord_2.email === CustomerAddress) {
+                            currentCustomerId = CustomerRecord_2.id;
                             currentCustomerAddress = CustomerAddress;
                             return [2 /*return*/];
                         }
@@ -931,10 +931,81 @@ function resetCustomerPasswordUsing(Token, Password) {
         });
     });
 }
+/**** CustomerRecord ****/
+function CustomerRecord(CustomerId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var Response, Signal_18;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    allowNonEmptyString('VoltCloud customer id', CustomerId);
+                    assertDeveloperFocus();
+                    assertApplicationFocus();
+                    if (CustomerId == null) {
+                        assertCustomerFocus();
+                        CustomerId = currentCustomerId;
+                    }
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'GET', '{{application_url}}/api/user/{{customer_id}}', {
+                            customer_id: CustomerId
+                        })];
+                case 2:
+                    Response = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_18 = _a.sent();
+                    switch (Signal_18.HTTPStatus) {
+                        // no knowledge about HTTP status Codes yet
+                        default: throw Signal_18;
+                    }
+                case 4: return [2 /*return*/, Response];
+            }
+        });
+    });
+}
+/**** updateCustomerRecordBy ****/
+function updateCustomerRecordBy(Settings) {
+    return __awaiter(this, void 0, void 0, function () {
+        var Response, Signal_19;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    expectPlainObject('VoltCloud customer settings', Settings);
+                    assertDeveloperFocus();
+                    assertApplicationFocus();
+                    assertCustomerFocus();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{application_url}}/api/user/{{customer_id}}', null, Settings)];
+                case 2:
+                    Response = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_19 = _a.sent();
+                    switch (Signal_19.HTTPStatus) {
+                        // no knowledge about HTTP status Codes yet
+                        default: throw Signal_19;
+                    }
+                case 4:
+                    if ((Response != null) && (Response.id === currentCustomerId)) {
+                        //    currentCustomerId      = Response.id
+                        currentCustomerAddress = Response.email; // might have changed
+                    }
+                    else {
+                        throwError('InternalError: could not analyze response for registration request');
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 /**** deleteCustomer ****/
 function deleteCustomer() {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_18;
+        var Signal_20;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -949,10 +1020,10 @@ function deleteCustomer() {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_18 = _a.sent();
-                    switch (Signal_18.HTTPStatus) {
+                    Signal_20 = _a.sent();
+                    switch (Signal_20.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_18;
+                        default: throw Signal_20;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -962,7 +1033,7 @@ function deleteCustomer() {
 /**** CustomerStorage ****/
 function CustomerStorage() {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_19;
+        var Response, Signal_21;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -977,10 +1048,10 @@ function CustomerStorage() {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_19 = _a.sent();
-                    switch (Signal_19.HTTPStatus) {
+                    Signal_21 = _a.sent();
+                    switch (Signal_21.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_19;
+                        default: throw Signal_21;
                     }
                 case 4: return [2 /*return*/, Response || {}];
             }
@@ -990,7 +1061,7 @@ function CustomerStorage() {
 /**** CustomerStorageEntry ****/
 function CustomerStorageEntry(StorageKey) {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_20;
+        var Response, Signal_22;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1008,11 +1079,11 @@ function CustomerStorageEntry(StorageKey) {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_20 = _a.sent();
-                    switch (Signal_20.HTTPStatus) {
+                    Signal_22 = _a.sent();
+                    switch (Signal_22.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
                         case 404: return [2 /*return*/, undefined];
-                        default: throw Signal_20;
+                        default: throw Signal_22;
                     }
                 case 4: return [2 /*return*/, Response];
             }
@@ -1022,7 +1093,7 @@ function CustomerStorageEntry(StorageKey) {
 /**** setCustomerStorageEntryTo ****/
 function setCustomerStorageEntryTo(StorageKey, StorageValue) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_21;
+        var Signal_23;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1041,10 +1112,10 @@ function setCustomerStorageEntryTo(StorageKey, StorageValue) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_21 = _a.sent();
-                    switch (Signal_21.HTTPStatus) {
+                    Signal_23 = _a.sent();
+                    switch (Signal_23.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_21;
+                        default: throw Signal_23;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -1054,7 +1125,7 @@ function setCustomerStorageEntryTo(StorageKey, StorageValue) {
 /**** deleteCustomerStorageEntry ****/
 function deleteCustomerStorageEntry(StorageKey) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_22;
+        var Signal_24;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1072,11 +1143,11 @@ function deleteCustomerStorageEntry(StorageKey) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_22 = _a.sent();
-                    switch (Signal_22.HTTPStatus) {
+                    Signal_24 = _a.sent();
+                    switch (Signal_24.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
                         case 404: return [2 /*return*/];
-                        default: throw Signal_22;
+                        default: throw Signal_24;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -1086,7 +1157,7 @@ function deleteCustomerStorageEntry(StorageKey) {
 /**** clearCustomerStorage ****/
 function clearCustomerStorage() {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_23;
+        var Signal_25;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1101,10 +1172,10 @@ function clearCustomerStorage() {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_23 = _a.sent();
-                    switch (Signal_23.HTTPStatus) {
+                    Signal_25 = _a.sent();
+                    switch (Signal_25.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_23;
+                        default: throw Signal_25;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -1160,7 +1231,7 @@ function assertCustomerFocus() {
 /**** loginDeveloper ****/
 function loginDeveloper(EMailAddress, Password) {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_24;
+        var Response, Signal_26;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1181,11 +1252,11 @@ function loginDeveloper(EMailAddress, Password) {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_24 = _a.sent();
-                    switch (Signal_24.HTTPStatus) {
+                    Signal_26 = _a.sent();
+                    switch (Signal_26.HTTPStatus) {
                         case 401: throwError('LoginFailed: developer could not be logged in');
                         case 402: throwError('NoSuchUser: the given developer is unknown');
-                        default: throw Signal_24;
+                        default: throw Signal_26;
                     }
                     return [3 /*break*/, 4];
                 case 4:
@@ -1349,5 +1420,5 @@ function namedError(Message, Details) {
     return Result;
 }
 
-export { ApplicationNamePattern, ApplicationRecord, ApplicationRecords, ApplicationStorage, ApplicationStorageEntry, CustomerRecords, CustomerStorage, CustomerStorageEntry, ValueIsApplicationName, ValueIsPassword, ValueIsStorageKey, ValueIsStorageValue, actOnBehalfOfDeveloper, allowApplicationName, allowPassword, allowStorageKey, allowStorageValue, allowedApplicationName, allowedPassword, allowedStorageKey, allowedStorageValue, changeApplicationNameTo, clearApplicationStorage, clearCustomerStorage, confirmCustomerUsing, deleteApplication, deleteApplicationStorageEntry, deleteCustomer, deleteCustomerStorageEntry, expectApplicationName, expectPassword, expectStorageKey, expectStorageValue, expectedApplicationName, expectedPassword, expectedStorageKey, expectedStorageValue, focusOnApplication, focusOnApplicationCalled, focusOnCustomer, focusOnCustomerWithAddress, focusOnNewApplication, focusOnNewCustomer, maxApplicationNameLength, maxStorageKeyLength, maxStorageValueLength, resendConfirmationEMailToCustomer, resetCustomerPasswordUsing, setApplicationStorageEntryTo, setCustomerStorageEntryTo, startPasswordResetForCustomer, updateApplicationRecordBy, uploadToApplication };
+export { ApplicationNamePattern, ApplicationRecord, ApplicationRecords, ApplicationStorage, ApplicationStorageEntry, CustomerRecord, CustomerRecords, CustomerStorage, CustomerStorageEntry, ValueIsApplicationName, ValueIsPassword, ValueIsStorageKey, ValueIsStorageValue, actOnBehalfOfDeveloper, allowApplicationName, allowPassword, allowStorageKey, allowStorageValue, allowedApplicationName, allowedPassword, allowedStorageKey, allowedStorageValue, changeApplicationNameTo, clearApplicationStorage, clearCustomerStorage, confirmCustomerUsing, deleteApplication, deleteApplicationStorageEntry, deleteCustomer, deleteCustomerStorageEntry, expectApplicationName, expectPassword, expectStorageKey, expectStorageValue, expectedApplicationName, expectedPassword, expectedStorageKey, expectedStorageValue, focusOnApplication, focusOnApplicationCalled, focusOnCustomer, focusOnCustomerWithAddress, focusOnNewApplication, focusOnNewCustomer, maxApplicationNameLength, maxStorageKeyLength, maxStorageValueLength, resendConfirmationEMailToCustomer, resetCustomerPasswordUsing, setApplicationStorageEntryTo, setCustomerStorageEntryTo, startPasswordResetForCustomer, updateApplicationRecordBy, updateCustomerRecordBy, uploadToApplication };
 //# sourceMappingURL=voltcloud-for-servers.esm.js.map
