@@ -62,7 +62,7 @@ TypeScript programmers may import the following types in order to benefit from s
 * **`async function ApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<VC_StorageValue | undefined>`**<br>
 * **`async function setApplicationStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>
 * **`async function deleteApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>
-* **`async function clearApplicationStorage ():Promise<void>`**<br>
+* **`async function clearApplicationStorage ():Promise<void>`**<br>  <br>&nbsp;<br>
 * **`async function CustomerRecords ():Promise<VC_CustomerRecord[]>`**<br>  <br>&nbsp;<br>
 * **`async function focusOnCustomer (CustomerId:string):Promise<void>`**<br>
 * **`async function focusOnCustomerWithAddress (CustomerAddress:string):Promise<void>`**<br>
