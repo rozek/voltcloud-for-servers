@@ -231,6 +231,7 @@
 
     console.log()
     console.log('a first confirmation email should have been sent to "' + CustomerAddress + '"')
+    console.log('just re-run this test without any changes')
 
     process.exit(0)
   } else {
@@ -366,3 +367,6 @@
       }
     return KeyList
   }
+
+  console.log()
+  console.log('Smoke Test finished - "voltcloud-for-servers" seems to be working')
