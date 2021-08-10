@@ -104,8 +104,6 @@ export declare function startPasswordResetForCustomer(EMailAddress?: string): Pr
 export declare function resetCustomerPasswordUsing(Token: string, Password: string): Promise<void>;
 /**** CustomerRecord ****/
 export declare function CustomerRecord(CustomerId: string): Promise<VC_CustomerRecord | undefined>;
-/**** updateCustomerRecordBy ****/
-export declare function updateCustomerRecordBy(Settings: VC_CustomerUpdate): Promise<void>;
 /**** deleteCustomer ****/
 export declare function deleteCustomer(): Promise<void>;
 /**** CustomerStorage ****/
