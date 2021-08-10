@@ -642,7 +642,7 @@ function clearApplicationStorage() {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('private', 'DELETE', '{{application_url}}/api/storage/{{application_id}}')];
+                    return [4 /*yield*/, ResponseOf('private', 'DELETE', '{{dashboard_url}}/api/storage/{{application_id}}')];
                 case 2:
                     _a.sent();
                     return [3 /*break*/, 4];
