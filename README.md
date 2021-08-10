@@ -20,6 +20,8 @@ a simple VoltCloud library for servers
 
 `voltcloud-for-servers` exports the following constants:
 
+* **`ApplicationNamePattern = /^[0-9a-z][-0-9a-z]*$/`**<br>this value defines the RegExp pattern, any VoltCloud application name must match to
+* **`const maxApplicationNameLength = 63`**<br>this value defines the maximum length of any VoltCloud application name
 * **`const maxStorageKeyLength = 255`**<br>this value defines the maximum length of any *key* in a VoltCloud key-value store
 * **`const maxStorageValueLength = 1048574`**<br>this value defines the maximum length of any *value* in a VoltCloud key-value store
 
