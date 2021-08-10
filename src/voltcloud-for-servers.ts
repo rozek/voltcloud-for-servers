@@ -5,7 +5,7 @@
   import {
     throwError, quoted,
     ValueIsString, ValueIsNonEmptyString,
-    expectNonEmptyString, expectPlainObject,
+    allowNonEmptyString, expectNonEmptyString, expectPlainObject,
     allowEMailAddress, expectEMailAddress, expectURL,
     ValidatorForClassifier, acceptNil, rejectNil
   } from 'javascript-interface-library'
@@ -14,8 +14,10 @@
 
 /**** VoltCloud-specific types and constants ****/
 
-  export const maxStorageKeyLength   = 255      // as mentioned in REST API docs
-  export const maxStorageValueLength = 1048574           // see discussion forum
+  export const ApplicationNamePattern   = /^[0-9a-z][-0-9a-z]*$/ //see dashboard
+  export const maxApplicationNameLength = 63             // see discussion forum
+  export const maxStorageKeyLength      = 255   // as mentioned in REST API docs
+  export const maxStorageValueLength    = 1048574        // see discussion forum
 
   export type VC_ApplicationName = string    // mainly for illustrative purposes
 
@@ -40,7 +42,7 @@
   export type VC_CustomerRecord = {
     id:string, email:string, first_name?:string, last_name?:string,
     confirmed:boolean, admin:boolean, meta?:any
-  }
+  } // note: "meta" field is obsolete
 
   export type VC_CustomerUpdate = {
     email?:string,
@@ -168,7 +170,7 @@
     let Response
     try {
       Response = await ResponseOf(
-        'private', 'POST', '{{dashboard_url}}/api/app'
+        'private', 'POST', '{{dashboard_url}}/api/app', null, {}
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
@@ -262,13 +264,23 @@
 
 /**** deleteApplication ****/
 
-  export async function deleteApplication ():Promise<void> {
+  export async function deleteApplication (
+    ApplicationId:string
+  ):Promise<void> {
+    allowNonEmptyString('VoltCloud application id',ApplicationId)
+
     assertDeveloperFocus()
-    assertApplicationFocus()
+
+    if (ApplicationId == null) {
+      assertApplicationFocus()
+      ApplicationId = currentApplicationId as string
+    }
 
     try {
       await ResponseOf(
-        'private', 'DELETE', '{{dashboard_url}}/api/app/{{application_id}}'
+        'private', 'DELETE', '{{dashboard_url}}/api/app/{{application_id}}', {
+          application_id:ApplicationId
+        }
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
@@ -319,7 +331,8 @@
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
 // no knowledge about HTTP status Codes yet
-        default: throw Signal
+        case 404: return undefined
+        default:  throw Signal
       }
     }
 
@@ -370,7 +383,8 @@
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
 // no knowledge about HTTP status Codes yet
-        default: throw Signal
+        case 404: return
+        default:  throw Signal
       }
     }
   }
@@ -686,7 +700,8 @@
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
 // no knowledge about HTTP status Codes yet
-        default: throw Signal
+        case 404: return undefined
+        default:  throw Signal
       }
     }
 
@@ -739,7 +754,8 @@
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
 // no knowledge about HTTP status Codes yet
-        default: throw Signal
+        case 404: return
+        default:  throw Signal
       }
     }
   }
@@ -786,8 +802,9 @@
 
   export function ValueIsApplicationName (Value:any):boolean {
     return (
-      ValueIsString(Value) && (Value.length >= 1) &&
-      /^[0-9a-z][-0-9a-z]*$/.test(Value)
+      ValueIsString(Value) &&
+      (Value.length >= 1) && (Value.length <= maxApplicationNameLength) &&
+      ApplicationNamePattern.test(Value)
     )
   }
 
@@ -906,13 +923,13 @@
     Method:'GET'|'PUT'|'POST'|'DELETE', URL:string, Parameters?:any, Data?:any,
     firstAttempt:boolean = true
   ):Promise<any> {
-    let fullParameters = Object.assign({}, Parameters || {}, {
+    let fullParameters = Object.assign({}, {
       dashboard_id:   DashboardId,
       dashboard_url:  DashboardURL,
       application_id: currentApplicationId,
       application_url:currentApplicationURL,
       customer_id:    currentCustomerId,
-    })
+    }, Parameters || {})
 
     let resolvedURL:string = resolved(URL,fullParameters)
     if (Method === 'GET') {
@@ -959,6 +976,8 @@
           let StatusCode  = Response.statusCode
           let ContentType = Response.headers['content-type'] || ''
           switch (true) {
+            case (StatusCode === 204):
+              return resolve(undefined)
             case (StatusCode >= 200) && (StatusCode < 300):
               switch (true) {
                 case ContentType.startsWith('application/json'):
@@ -1023,7 +1042,7 @@
         })
 
         if (RequestBody != null) { Request.write(RequestBody) }
-console.log('>>>>',Request.method)
+console.log('>>>>',Request.method,resolvedURL)
 console.log('>>>>',Request.getHeader('Content-Type'))
       Request.end()
     })
