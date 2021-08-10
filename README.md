@@ -48,6 +48,36 @@ TypeScript programmers may import the following types in order to benefit from s
 * **`expectStorageKey (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a *key* for a VoltCloud key-value store. If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud storage key"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedStorageKey`, `expectStorageKey` and `expectedStorageKey` exist as well<br>&nbsp;<br>
 * **`ValueIsStorageValue (Value:any):boolean`**<br>returns `true` if the given value may be used as a *value* in a VoltCloud key-value store or `false` otherwise
 * **`expectStorageValue (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a *value* for a VoltCloud key-value store. If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud storage value"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedStorageValue`, `expectStorageValue` and `expectedStorageValue` exist as well<br>&nbsp;<br>
+* **`async function actOnBehalfOfDeveloper (EMailAddress:string, Password:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function ApplicationRecords ():Promise<VC_ApplicationRecord[]>`**<br>  <br>&nbsp;<br>
+* **`async function focusOnApplication (ApplicationId:string):Promise<void>`**<br>
+* **`async function focusOnApplicationCalled (ApplicationName:VC_ApplicationName):Promise<void>`**<br>
+* **`async function focusOnNewApplication ():Promise<void>`**<br>
+* **`async function ApplicationRecord ():Promise<VC_ApplicationRecord | undefined>`**<br>
+* **`async function changeApplicationNameTo (ApplicationName:VC_ApplicationName):Promise<void>`**<br>
+* **`async function updateApplicationRecordBy (Settings:VC_ApplicationUpdate):Promise<void>`**<br>
+* **`async function uploadToApplication (Archive:Blob):Promise<void>`**<br>
+* **`async function deleteApplication (ApplicationId:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function ApplicationStorage ():Promise<VC_StorageSet>`**<br>
+* **`async function ApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<VC_StorageValue | undefined>`**<br>
+* **`async function setApplicationStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>
+* **`async function deleteApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>
+* **`async function clearApplicationStorage ():Promise<void>`**<br>
+* **`async function CustomerRecords ():Promise<VC_CustomerRecord[]>`**<br>  <br>&nbsp;<br>
+* **`async function focusOnCustomer (CustomerId:string):Promise<void>`**<br>
+* **`async function focusOnCustomerWithAddress (CustomerAddress:string):Promise<void>`**<br>
+* **`async function focusOnNewCustomer (EMailAddress:string, Password:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function resendConfirmationEMailToCustomer (EMailAddress?:string):Promise<void>`**<br>
+* **`async function confirmCustomerUsing (Token:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function startPasswordResetForCustomer (EMailAddress?:string):Promise<void>`**<br>
+* **`async function resetCustomerPasswordUsing (Token:string, Password:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function CustomerRecord (CustomerId:string):Promise<VC_CustomerRecord | undefined>`**<br>
+* **`async function deleteCustomer ():Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function CustomerStorage ():Promise<VC_StorageSet>`**<br>
+* **`async function CustomerStorageEntry (StorageKey:VC_StorageKey):Promise<VC_StorageValue | undefined>`**<br>
+* **`async function setCustomerStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>
+* **`async function deleteCustomerStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>
+* **`async function clearCustomerStorage ():Promise<void>`**<br>
 
 ## Build Instructions ##
 
