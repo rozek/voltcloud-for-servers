@@ -20,7 +20,7 @@ a simple VoltCloud library for servers
 
 `voltcloud-for-servers` exports the following constants:
 
-* **`ApplicationNamePattern = /^[0-9a-z][-0-9a-z]*$/`**<br>this value defines the RegExp pattern, any VoltCloud application name must match to
+* **`const ApplicationNamePattern = /^[0-9a-z][-0-9a-z]*$/`**<br>this value defines the regular expression pattern, any VoltCloud application name must match to
 * **`const maxApplicationNameLength = 63`**<br>this value defines the maximum length of any VoltCloud application name
 * **`const maxStorageKeyLength = 255`**<br>this value defines the maximum length of any *key* in a VoltCloud key-value store
 * **`const maxStorageValueLength = 1048574`**<br>this value defines the maximum length of any *value* in a VoltCloud key-value store
@@ -29,8 +29,11 @@ a simple VoltCloud library for servers
 
 TypeScript programmers may import the following types in order to benefit from static type checking (JavaScript programmers may simply skip this section):
 
-* **`type VC_CustomerRecord = { id:string, email:string, first_name?:string, last_name?:string, confirmed:boolean, admin:boolean, meta?:any }`**<br>instances of this type are returned when the settings of an already registered user are requested
-* **`type VC_CustomerUpdate = { email?:string, password?:{ old:string, new:string, confirmation:string }, first_name?:string, last_name?:string }`**<br>instances of this type are used when specific settings of an already registered user shall be changed
+* **`type VC_ApplicationName = string`**<br>application names must be string with 1...`maxApplicationNameLength` characters matching the regular expression `ApplicationNamePattern`
+* **`type VC_ApplicationRecord = {id:string, owner:string, subdomain:string, disabled:boolean, url:string, canonical_domain?:string, confirmation_url?:string, reset_url?:string, last_upload?:string, nice_links:boolean, cors_type:string, cors_domain?:string, frame_type:string, frame_domain?:string}`**<br>instances of this type are returned when details of an existing application are requested
+* **`type VC_ApplicationUpdate = {subdomain?:string, disabled?:boolean, canonical_domain?:string, confirmation_url?:string, reset_url?:string, nice_links?:boolean, cors_type?:string, cors_domain?:string, frame_type?:string, frame_domain?:string}`**<br>instances of this type are used when specific details of an existing application shall be changed
+* **`type VC_CustomerRecord = { id:string, email:string, first_name?:string, last_name?:string, confirmed:boolean, admin:boolean, meta?:any }`**<br>instances of this type are returned when details of an already registered user are requested
+* **`type VC_CustomerUpdate = { email?:string, password?:{ old:string, new:string, confirmation:string }, first_name?:string, last_name?:string }`**<br>instances of this type are used when specific details of an already registered user shall be changed
 * **`type VC_StorageKey = string`**<br>VoltCloud storage keys are strings with a length of up to `maxStorageKeyLength` characters
 * **`type VC_StorageValue = string | undefined`**<br>VoltCloud storage values are strings with a length of up to `maxStorageValueLength` characters. While VoltCloud itself responds with an error when non-existing entries are read, `voltcloud-for-applications` returns `undefined` instead
 * **`type VC_StorageSet = { [Key:string]:VC_StorageValue }`**<br>a VoltCloud storage can be seen as an associative array with literal keys and values
@@ -38,11 +41,43 @@ TypeScript programmers may import the following types in order to benefit from s
 ### exported Functions ###
 
 * **`ValueIsPassword (Value:any):boolean`**<br>returns `true` if the given value may be used as a VoltCloud password (i.e., if it is a string which fulfills the requirements of a VoltCloud password) or `false` otherwise
-* **`allowPassword (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a VoltCloud password (i.e., is a string which fulfills the requirements of a VoltCloud password). If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud password"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedPassword`, `expectPassword` and `expectedPassword` exist here as well<br>&nbsp;<br>
+* **`allowPassword (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a VoltCloud password (i.e., is a string which fulfills the requirements of a VoltCloud password). If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud password"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedPassword`, `expectPassword` and `expectedPassword` exist as well<br>&nbsp;<br>
+* **`ValueIsApplicationName (Value:any):boolean`**<br>returns `true` if the given value may be used as a VoltCloud application name (i.e., if it is a string with 1...`maxApplicationNameLength` characters matching the regular expression `ApplicationNamePattern`) or `false` otherwise
+* **`allowApplicationName (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a VoltCloud application name (i.e., is a string with 1...`maxApplicationNameLength` characters matching the regular expression `ApplicationNamePattern`). If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud application name"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedApplicationName`, `expectApplicationName` and `expectedApplicationName` exist as well<br>&nbsp;<br>
 * **`ValueIsStorageKey (Value:any):boolean`**<br>returns `true` if the given value may be used as a *key* for a VoltCloud key-value store or `false` otherwise
-* **`expectStorageKey (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a *key* for a VoltCloud key-value store. If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud storage key"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedStorageKey`, `expectStorageKey` and `expectedStorageKey` exist here as well<br>&nbsp;<br>
+* **`expectStorageKey (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a *key* for a VoltCloud key-value store. If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud storage key"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedStorageKey`, `expectStorageKey` and `expectedStorageKey` exist as well<br>&nbsp;<br>
 * **`ValueIsStorageValue (Value:any):boolean`**<br>returns `true` if the given value may be used as a *value* in a VoltCloud key-value store or `false` otherwise
-* **`expectStorageValue (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a *value* for a VoltCloud key-value store. If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud storage value"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedStorageValue`, `expectStorageValue` and `expectedStorageValue` exist here as well<br>&nbsp;<br>
+* **`expectStorageValue (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a *value* for a VoltCloud key-value store. If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud storage value"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedStorageValue`, `expectStorageValue` and `expectedStorageValue` exist as well<br>&nbsp;<br>
+* **`async function actOnBehalfOfDeveloper (EMailAddress:string, Password:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function ApplicationRecords ():Promise<VC_ApplicationRecord[]>`**<br>  <br>&nbsp;<br>
+* **`async function focusOnApplication (ApplicationId:string):Promise<void>`**<br>
+* **`async function focusOnApplicationCalled (ApplicationName:VC_ApplicationName):Promise<void>`**<br>
+* **`async function focusOnNewApplication ():Promise<void>`**<br>
+* **`async function ApplicationRecord ():Promise<VC_ApplicationRecord | undefined>`**<br>
+* **`async function changeApplicationNameTo (ApplicationName:VC_ApplicationName):Promise<void>`**<br>
+* **`async function updateApplicationRecordBy (Settings:VC_ApplicationUpdate):Promise<void>`**<br>
+* **`async function uploadToApplication (Archive:Blob):Promise<void>`**<br>
+* **`async function deleteApplication (ApplicationId:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function ApplicationStorage ():Promise<VC_StorageSet>`**<br>
+* **`async function ApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<VC_StorageValue | undefined>`**<br>
+* **`async function setApplicationStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>
+* **`async function deleteApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>
+* **`async function clearApplicationStorage ():Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function CustomerRecords ():Promise<VC_CustomerRecord[]>`**<br>  <br>&nbsp;<br>
+* **`async function focusOnCustomer (CustomerId:string):Promise<void>`**<br>
+* **`async function focusOnCustomerWithAddress (CustomerAddress:string):Promise<void>`**<br>
+* **`async function focusOnNewCustomer (EMailAddress:string, Password:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function resendConfirmationEMailToCustomer (EMailAddress?:string):Promise<void>`**<br>
+* **`async function confirmCustomerUsing (Token:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function startPasswordResetForCustomer (EMailAddress?:string):Promise<void>`**<br>
+* **`async function resetCustomerPasswordUsing (Token:string, Password:string):Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function CustomerRecord (CustomerId:string):Promise<VC_CustomerRecord | undefined>`**<br>
+* **`async function deleteCustomer ():Promise<void>`**<br>  <br>&nbsp;<br>
+* **`async function CustomerStorage ():Promise<VC_StorageSet>`**<br>
+* **`async function CustomerStorageEntry (StorageKey:VC_StorageKey):Promise<VC_StorageValue | undefined>`**<br>
+* **`async function setCustomerStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>
+* **`async function deleteCustomerStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>
+* **`async function clearCustomerStorage ():Promise<void>`**<br>
 
 ## Build Instructions ##
 
