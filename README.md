@@ -22,6 +22,8 @@ a simple VoltCloud library for servers
 
 * **`const ApplicationNamePattern = /^[0-9a-z][-0-9a-z]*$/`**<br>this value defines the regular expression pattern, any VoltCloud application name must match to
 * **`const maxApplicationNameLength = 63`**<br>this value defines the maximum length of any VoltCloud application name
+* **`const maxEMailAddressLength = 255`**<br>this value defines the maximum length of the email address used to identify developers and customers
+* **`const maxNamePartLength = 255`**<br>this value defines the maximum length of the first or last name of any customer
 * **`const maxStorageKeyLength = 255`**<br>this value defines the maximum length of any *key* in a VoltCloud key-value store
 * **`const maxStorageValueLength = 1048574`**<br>this value defines the maximum length of any *value* in a VoltCloud key-value store
 
