@@ -3,12 +3,10 @@
   "version": "0.1.0",
   "description": "a simple VoltCloud library for servers",
   "type": "module",
-  "main": "./dist/voltcloud-for-servers.js",
   "module": "./dist/voltcloud-for-servers.esm.js",
   "types": "./dist/voltcloud-for-servers.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/voltcloud-for-servers.js",
       "import": "./dist/voltcloud-for-servers.esm.js"
     },
     "./package.json": "./package.json"
@@ -40,10 +38,10 @@
     "rimraf": "^3.0.2",
     "rollup": "^2.56.0",
     "rollup-plugin-terser": "^7.0.2",
+    "chai": "^4.3.4",
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "chai": "^4.3.4",
     "javascript-interface-library": "^1.0.0"
   }
 }
