@@ -5,12 +5,14 @@
   import {
     throwError, quoted,
     ValueIsString, ValueIsNonEmptyString,
+    expectValue,
     allowNonEmptyString, expectNonEmptyString, expectPlainObject,
     allowEMailAddress, expectEMailAddress, expectURL,
     ValidatorForClassifier, acceptNil, rejectNil
   } from 'javascript-interface-library'
 
   import * as https from 'https'
+  import { Buffer } from 'buffer'
 
 /**** VoltCloud-specific types and constants ****/
 
@@ -253,13 +255,28 @@
 /**** uploadToApplication ****/
 
   export async function uploadToApplication (
-    Archive:Blob
+    ZIPArchive:Buffer
   ):Promise<void> {
+    expectValue('ZIP archive',ZIPArchive)
+    if (! Buffer.isBuffer(ZIPArchive)) throwError(
+      'InvalidArgument: the given ZIP archive is no valid Node.js buffer'
+    )
 
     assertDeveloperFocus()
     assertApplicationFocus()
 
-
+    try {
+      await ResponseOf(
+        'private', 'POST', '{{dashboard_url}}/api/app/{{application_id}}/version', {
+          application_id:currentApplicationId
+        }, ZIPArchive
+      )
+    } catch (Signal) {
+      switch (Signal.HTTPStatus) {
+// no knowledge about HTTP status Codes yet
+        default: throw Signal
+      }
+    }
   }
 
 /**** deleteApplication ****/
@@ -993,17 +1010,31 @@
         RequestOptions.headers['authorization'] = 'Bearer ' + currentAccessToken
       }
 
-      let RequestBody:string
+      let RequestBody:string|Buffer
       if (Data != null) {
-//      if (Data instanceof Blob) {
-// <<<<
-//      } else {
+        if (Buffer.isBuffer(Data)) {
+          const Boundary = 'form-boundary'
+
+          RequestBody = Buffer.concat([
+            Buffer.from([
+              '--' + Boundary,
+              'Content-Disposition: form-data; name="file"; filename="index.zip"',
+              'Content-Type: application/zip'
+            ].join('\r\n') + '\r\n' + '\r\n', 'utf8'),
+            Data,
+            Buffer.from('\r\n' + '--' + Boundary + '--' + '\r\n', 'utf8')
+          ])
+
+// @ts-ignore we definitely want to index with a literal
+          RequestOptions.headers['content-type'] = 'multipart/form-data; boundary=' + Boundary
+        } else {
           RequestBody = JSON.stringify(Data)
 // @ts-ignore we definitely want to index with a literal
           RequestOptions.headers['content-type']   = 'application/json'
+        }
+
 // @ts-ignore we definitely want to index with a literal
-          RequestOptions.headers['content-length'] = RequestBody.length
-//      }
+        RequestOptions.headers['content-length'] = RequestBody.length
       }
     return new Promise((resolve, reject) => {
       let Request = https.request(resolvedURL, RequestOptions, (Response:any) => {
@@ -1020,6 +1051,7 @@
           let StatusCode  = Response.statusCode
           let ContentType = Response.headers['content-type'] || ''
           switch (true) {
+            case (StatusCode === 201):   // often with content-type "text/plain"
             case (StatusCode === 204):
               return resolve(undefined)
             case (StatusCode >= 200) && (StatusCode < 300):
