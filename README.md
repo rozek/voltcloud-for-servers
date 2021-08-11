@@ -45,7 +45,7 @@ import {
   startPasswordResetForCustomer, resetCustomerPasswordUsing,
   CustomerRecord, deleteCustomer,
   CustomerStorage, CustomerStorageEntry, setCustomerStorageEntryTo,
-  deleteCustomerStorageEntry, clearCustomerStorage
+    deleteCustomerStorageEntry, clearCustomerStorage
 } from 'voltcloud-for-servers'
 ```
 
