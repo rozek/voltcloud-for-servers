@@ -54,35 +54,35 @@ TypeScript programmers may import the following types in order to benefit from s
 * **`ValueIsStorageValue (Value:any):boolean`**<br>returns `true` if the given value may be used as a *value* in a VoltCloud key-value store or `false` otherwise
 * **`expectStorageValue (Description:string, Argument:any):string`**<br>checks if the given `Argument` (if it exists), may be used as a *value* for a VoltCloud key-value store. If this is the case (or `Argument` is missing), the function returns the primitive value of the given `Argument`, otherwise an error with the message `"the given ${Description} is no valid VoltCloud storage value"` is thrown, which uses the given `Description`. As in the [javascript-interface-library](https://github.com/rozek/javascript-interface-library), the variants `allowedStorageValue`, `expectStorageValue` and `expectedStorageValue` exist as well<br>&nbsp;<br>
 * **`async function actOnBehalfOfDeveloper (EMailAddress:string, Password:string):Promise<void>`**<br>uses the given `EMailAddress` and `Password` to request an "access token" from VoltCloud, which is then used to authenticate any non-public VoltCloud request. Note: `EMailAddress` and `Password` are kept in memory while the process is running in order to automatically refresh the token upon expiry<br>&nbsp;<br>
-* **`async function ApplicationRecords ():Promise<VC_ApplicationRecord[]>`**<br>  <br>&nbsp;<br>
-* **`async function focusOnApplication (ApplicationId:string):Promise<void>`**<br>
-* **`async function focusOnApplicationCalled (ApplicationName:VC_ApplicationName):Promise<void>`**<br>
-* **`async function focusOnNewApplication ():Promise<void>`**<br>
-* **`async function ApplicationRecord ():Promise<VC_ApplicationRecord | undefined>`**<br>
-* **`async function changeApplicationNameTo (ApplicationName:VC_ApplicationName):Promise<void>`**<br>
-* **`async function updateApplicationRecordBy (Settings:VC_ApplicationUpdate):Promise<void>`**<br>
-* **`async function uploadToApplication (Archive:Blob):Promise<void>`**<br>
-* **`async function deleteApplication (ApplicationId:string):Promise<void>`**<br>  <br>&nbsp;<br>
-* **`async function ApplicationStorage ():Promise<VC_StorageSet>`**<br>
-* **`async function ApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<VC_StorageValue | undefined>`**<br>
-* **`async function setApplicationStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>
-* **`async function deleteApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>
-* **`async function clearApplicationStorage ():Promise<void>`**<br>  <br>&nbsp;<br>
-* **`async function CustomerRecords ():Promise<VC_CustomerRecord[]>`**<br>  <br>&nbsp;<br>
-* **`async function focusOnCustomer (CustomerId:string):Promise<void>`**<br>
-* **`async function focusOnCustomerWithAddress (CustomerAddress:string):Promise<void>`**<br>
-* **`async function focusOnNewCustomer (EMailAddress:string, Password:string):Promise<void>`**<br>  <br>&nbsp;<br>
-* **`async function resendConfirmationEMailToCustomer (EMailAddress?:string):Promise<void>`**<br>
-* **`async function confirmCustomerUsing (Token:string):Promise<void>`**<br>  <br>&nbsp;<br>
-* **`async function startPasswordResetForCustomer (EMailAddress?:string):Promise<void>`**<br>
-* **`async function resetCustomerPasswordUsing (Token:string, Password:string):Promise<void>`**<br>  <br>&nbsp;<br>
-* **`async function CustomerRecord (CustomerId:string):Promise<VC_CustomerRecord | undefined>`**<br>
-* **`async function deleteCustomer ():Promise<void>`**<br>  <br>&nbsp;<br>
-* **`async function CustomerStorage ():Promise<VC_StorageSet>`**<br>
-* **`async function CustomerStorageEntry (StorageKey:VC_StorageKey):Promise<VC_StorageValue | undefined>`**<br>
-* **`async function setCustomerStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>
-* **`async function deleteCustomerStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>
-* **`async function clearCustomerStorage ():Promise<void>`**<br>
+* **`async function ApplicationRecords ():Promise<VC_ApplicationRecord[]>`**<br>retrieves a (potentially empty) list with the details of all applications created by the currently focused developer. See above for the internals of the delivered list items<br>&nbsp;<br>
+* **`async function focusOnApplication (ApplicationId:string):Promise<void>`**<br>sets the application given by `ApplicationId` as the target for all following application-specific requests. The function will fail, if no such application exists for the currently focused developer
+* **`async function focusOnApplicationCalled (ApplicationName:VC_ApplicationName):Promise<void>`**<br>sets the application given by `ApplicationName` as the target for all following application-specific requests. The function will fail, if no such application exists for the currently focused developer
+* **`async function focusOnNewApplication ():Promise<void>`**<br>creates a new application for the currently focused developer and "focuses" it
+* **`async function ApplicationRecord ():Promise<VC_ApplicationRecord | undefined>`**<br>retrieves a record with details of the current target application. See above for the internals of the delivered object
+* **`async function changeApplicationNameTo (ApplicationName:VC_ApplicationName):Promise<void>`**<br>renames the current target application to `ApplicationName`
+* **`async function updateApplicationRecordBy (Settings:VC_ApplicationUpdate):Promise<void>`**<br>updates the details of the current target application given by `Settings`. See above for the internals of that object
+* **`async function uploadToApplication (ZIPArchive:Buffer):Promise<void>`**<br>uploads the ZIP archive given by `ZIPArchive` to the current target application
+* **`async function deleteApplication (ApplicationId:string):Promise<void>`**<br>deletes the currently focused application<br>&nbsp;<br>
+* **`async function ApplicationStorage ():Promise<VC_StorageSet>`**<br>retrieves the complete key-value store for the current target application and delivers it as a JavaScript object
+* **`async function ApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<VC_StorageValue | undefined>`**<br>retrieves an entry (given by `StorageKey`) from the key-value store for the current target application and returns its value (as a JavaScript string) - or `undefined` if the requested entry does not exist
+* **`async function setApplicationStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>sets the entry given by `StorageKey` in the key-value store for the current target application to the value given by `StorageValue` (which must be a JavaScript string). If the entry does not yet exist, it will be created
+* **`async function deleteApplicationStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>removes the entry given by `StorageKey` from the key-value store for the current target application. It is ok to "delete" a non-existing entry (this function is "idempotent")
+* **`async function clearApplicationStorage ():Promise<void>`**<br>removes all entries from the key-value store for the current target application. It is ok to "clear" an empty store (this function is "idempotent")<br>&nbsp;<br>
+* **`async function CustomerRecords ():Promise<VC_CustomerRecord[]>`**<br>retrieves a (potentially empty) list with the details of all customers who registered for the current target application. See above for the internals of the delivered list items<br>&nbsp;<br>
+* **`async function focusOnCustomer (CustomerId:string):Promise<void>`**<br>sets the customer given by `CustomerId` as the target for all following (customer-specific) requests
+* **`async function focusOnCustomerWithAddress (CustomerAddress:string):Promise<void>`**<br>sets the customer with the email address given by `CustomerAddress` as the target for all following (customer-specific) requests
+* **`async function focusOnNewCustomer (EMailAddress:string, Password:string):Promise<void>`**<br>registers a new customer with the email address given by `EMailAddress`, sets the given `Password` as the initial password and sets him/her as the target for all following (customer-specific) requests. If configured for the current target application, this request will automatically send a customer confirmation email to the given address<br>&nbsp;<br>
+* **`async function resendConfirmationEMailToCustomer (EMailAddress?:string):Promise<void>`**<br>if configured for the current target application, this function will send another customer confirmation email to the address given by `EMailAddress` - if no such address is given, that email is sent to the current target customer
+* **`async function confirmCustomerUsing (Token:string):Promise<void>`**<br>confirms the email address given for a newly registered customer by providing the `Token` sent as part of a customer confirmation email. This token internally also specifies the customer to whom it was sent<br>&nbsp;<br>
+* **`async function startPasswordResetForCustomer (EMailAddress?:string):Promise<void>`**<br>if configured for the current target application, this function will send a password reset email to the address given by `EMailAddress` - if no such address is given, that email is sent to the current target customer
+* **`async function resetCustomerPasswordUsing (Token:string, Password:string):Promise<void>`**<br>sets `Password` as the new password for a customer by providing the `Token` sent as part of a password reset email. This token internally also specifies the customer to whom it was sent<br>&nbsp;<br>
+* **`async function CustomerRecord (CustomerId?:string):Promise<VC_CustomerRecord | undefined>`**<br>retrieves a record with all current VoltCloud settings for the customer given by `CustomerId` - if no such id is given, the current target customer's record will be retrieved. If no such customer exists (for the current target application), `undefined` is returned instead. See above for the internals of the delivered object
+* **`async function deleteCustomer ():Promise<void>`**<br>deletes the current target customer<br>&nbsp;<br>
+* **`async function CustomerStorage ():Promise<VC_StorageSet>`**<br>retrieves the complete key-value store for the current target customer and delivers it as a JavaScript object
+* **`async function CustomerStorageEntry (StorageKey:VC_StorageKey):Promise<VC_StorageValue | undefined>`**<br>retrieves an entry (given by `StorageKey`) from the key-value store for the current target customer and returns its value (as a JavaScript string) - or `undefined` if the requested entry does not exist
+* **`async function setCustomerStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>sets the entry given by `StorageKey` in the key-value store for the current target customer to the value given by `StorageValue` (which must be a JavaScript string). If the entry does not yet exist, it will be created
+* **`async function deleteCustomerStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>removes the entry given by `StorageKey` from the key-value store for the current target customer. It is ok to "delete" a non-existing entry (this function is "idempotent")
+* **`async function clearCustomerStorage ():Promise<void>`**<br>removes all entries from the key-value store for the current target customer. It is ok to "clear" an empty store (this function is "idempotent")
 
 ## Build Instructions ##
 
