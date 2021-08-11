@@ -15,7 +15,7 @@
     startPasswordResetForCustomer, resetCustomerPasswordUsing,
     CustomerRecord, deleteCustomer,
     CustomerStorage, CustomerStorageEntry, setCustomerStorageEntryTo,
-    deleteCustomerStorageEntry, clearCustomerStorage
+      deleteCustomerStorageEntry, clearCustomerStorage
   } from './dist/voltcloud-for-servers.esm.js'
 
   import path from 'path'
