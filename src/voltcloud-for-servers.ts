@@ -4,7 +4,7 @@
 
   import {
     throwError, quoted,
-    ValueIsString, ValueIsNonEmptyString,
+    ValueIsString, ValueIsNonEmptyString, ValueIsTextline,
     expectValue,
     allowNonEmptyString, expectNonEmptyString, expectPlainObject,
     allowEMailAddress, expectEMailAddress, expectURL,
@@ -18,6 +18,8 @@
 
   export const ApplicationNamePattern   = /^[0-9a-z][-0-9a-z]*$/ //see dashboard
   export const maxApplicationNameLength = 63             // see discussion forum
+  export const maxEMailAddressLength    = 255                            // dto.
+  export const maxNamePartLength        = 255                            // dto.
   export const maxStorageKeyLength      = 255   // as mentioned in REST API docs
   export const maxStorageValueLength    = 1048574        // see discussion forum
 
@@ -42,15 +44,19 @@
   }
 
   export type VC_CustomerRecord = {
-    id:string, email:string, first_name?:string, last_name?:string,
+    id:string, email:VC_EMailAddress, first_name?:VC_NamePart, last_name?:VC_NamePart,
     confirmed:boolean, admin:boolean, meta?:any
   } // note: "meta" field is obsolete
 
   export type VC_CustomerUpdate = {
-    email?:string,
-    password?:{ old:string, new:string, confirmation:string },
-    first_name?:string, last_name?:string
+    email?:VC_EMailAddress,
+    password?:{ old:VC_Password, new:VC_Password, confirmation:VC_Password },
+    first_name?:VC_NamePart, last_name?:VC_NamePart
   }
+
+  export type VC_EMailAddress = string       // mainly for illustrative purposes
+  export type VC_Password     = string                                   // dto.
+  export type VC_NamePart     = string                                   // dto.
 
   export type VC_StorageKey   = string       // mainly for illustrative purposes
   export type VC_StorageValue = string | undefined                       // dto.
@@ -658,7 +664,7 @@
 /**** CustomerRecord ****/
 
   export async function CustomerRecord (
-    CustomerId:string
+    CustomerId?:string
   ):Promise<VC_CustomerRecord | undefined> {
     allowNonEmptyString('VoltCloud customer id',CustomerId)
 
