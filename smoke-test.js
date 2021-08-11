@@ -315,7 +315,7 @@
     }
   }
 
-/**** if need be: give customer a name ****/
+/**** focus on the given customer ****/
 
   console.log('- focusing on customer "' + CustomerAddress + '"')
   await focusOnCustomerWithAddress(CustomerAddress)
