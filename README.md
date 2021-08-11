@@ -20,6 +20,37 @@ See below for a "smoke test" which may also serve as an example for how to use t
 
 `voltcloud-for-servers` requires Node.js. Since you are visiting this page, chances are good that you already have Node.js installed on your machine - if not, please follow the instructions found on [nodejs.org](https://nodejs.org/) to install it (the LTS version is sufficient if you don't plan to use Node.js on a regular basis)
 
+## Installation ##
+
+Simply install the package into your build environment using [NPM](https://docs.npmjs.com/) with the command
+
+```
+npm install voltcloud-for-servers
+```
+
+### Access ###
+
+Within your Node.js script, you may then import any functions you need - the following example will import all of them:
+
+```
+import {
+  actOnBehalfOfDeveloper, ApplicationRecords, CustomerRecords,
+  focusOnApplication, focusOnApplicationCalled, focusOnNewApplication,
+  ApplicationRecord, changeApplicationNameTo, updateApplicationRecordBy,
+    uploadToApplication, deleteApplication,
+  ApplicationStorage, ApplicationStorageEntry, setApplicationStorageEntryTo,
+    deleteApplicationStorageEntry, clearApplicationStorage,
+  focusOnCustomer, focusOnCustomerWithAddress, focusOnNewCustomer,
+  resendConfirmationEMailToCustomer, confirmCustomerUsing,
+  startPasswordResetForCustomer, resetCustomerPasswordUsing,
+  CustomerRecord, deleteCustomer,
+  CustomerStorage, CustomerStorageEntry, setCustomerStorageEntryTo,
+    deleteCustomerStorageEntry, clearCustomerStorage
+} from 'voltcloud-for-servers'
+```
+
+Just copy that statement into your source code and remove all unwanted functions.
+
 ## API Reference ##
 
 ### exported Constants ###
@@ -98,7 +129,15 @@ This repository contains a small "smoke test" (in a file called "smoke-test.js")
 
 The test becomes available if you download this repository (either using [git](https://git-scm.com/) in any of its variants or by unpacking a downloaded a [ZIP archive containing this repo](https://github.com/rozek/voltcloud-for-servers/archive/refs/heads/main.zip))
 
-It may be configured using the following set of environment variables:
+Now navigate to the folder containg the files of this repository and run
+
+```
+npm install
+```
+
+once in order to install any dependencies for the test.
+
+The smoke test itself may be configured using the following set of environment variables:
 
 * **`developer_email_address`** - set this to the email address of the developer for whom the test should run
 * **`developer_password`** - set this to the developer's password
