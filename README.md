@@ -6,7 +6,7 @@ a simple VoltCloud library for servers
 
 [VoltCloud.io](https://voltcloud.io) is a simple (and reasonably priced) deployment server for web applications with integrated user management and key-value stores for both the application itself and any of its users.
 
-`voltcloud-for-applications` is a simple client library for servers based on Node.js which need access to VoltCloud and its functions. <!-- It is the counterpart of [voltcloud-for-applications](https://github.com/rozek/voltcloud-for-applications) which provides a similar functionality (but from the viewpoint of an application user - aka "customer") for Web-based applications.-->
+`voltcloud-for-servers` is a simple client library for servers based on Node.js which need access to VoltCloud and its functions. <!-- It is the counterpart of [voltcloud-for-applications](https://github.com/rozek/voltcloud-for-applications) which provides a similar functionality (but from the viewpoint of an application user - aka "customer") for Web-based applications.-->
 
 See below for a "smoke test" which may also serve as an example for how to use this library.
 
@@ -15,6 +15,10 @@ See below for a "smoke test" which may also serve as an example for how to use t
 **NPM users**: please consider the [Github README](https://github.com/rozek/voltcloud-for-servers/blob/main/README.md) for the latest description of this package (as updating the docs would otherwise always require a new NPM package version)
 
 > Just a small note: if you like this module and plan to use it, consider "starring" this repository (you will find the "Star" button on the top right of this page), so that I know which of my repositories to take most care of.
+
+## Prerequisites ##
+
+`voltcloud-for-servers` requires Node.js. Since you are visiting this page, chances are good that you already have Node.js installed on your machine - if not, please follow the instructions found on [nodejs.org](https://nodejs.org/) to install it (the LTS version is sufficient if you don't plan to use Node.js on a regular basis)
 
 ## API Reference ##
 
@@ -88,9 +92,30 @@ TypeScript programmers may import the following types in order to benefit from s
 
 ## Smoke Test ##
 
-This repository contains a small "smoke test" which may also serve as an example for how to use this library.
+This repository contains a small "smoke test" (in a file called "smoke-test.js") which may also serve as an example for how to use `voltcloud-for-servers`. It illustrates the "good cases" of all functions offered by this library.
 
+### Preparation ###
 
+The test becomes available if you download this repository (either using [git](https://git-scm.com/) in any of its variants or by unpacking a downloaded a [ZIP archive containing this repo](https://github.com/rozek/voltcloud-for-servers/archive/refs/heads/main.zip))
+
+It may be configured using the following set of environment variables:
+
+* **`developer_email_address`** - set this to the email address of the developer for whom the test should run
+* **`developer_password`** - set this to the developer's password
+* **`customer_email_address`** - set this to an email address (different from that for the developer!) you have access to. It will become the address of a "customer"
+* **`customer_password`** - set this to the "customer"s password (which must meet the VoltCLoud password requirements)
+* **`customer_confirmation_token`** - initially, this variable should remain blank. Follow the instructions given by "smoke-test.js" to set it to a customer confirmation token when needed
+* **`customer_password_reset_token`** - initially, this variable should remain blank. Follow the instructions given by "smoke-test.js" to set it to a password reset token when needed
+
+### Execution ###
+
+The test may be started from within a shell using
+
+```
+node smoke-test.js
+```
+
+Important: for all procedures to get tested, you will have to start the script three times - in between, you may have to set the environment variables `customer_confirmation_token` or `customer_password_reset_token` following the instructions printed on the console
 
 ## Build Instructions ##
 
