@@ -1,4 +1,5 @@
 import * as https from 'https';
+import { Buffer } from 'buffer';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -165,6 +166,15 @@ function FunctionWithName(originalFunction, desiredName) {
         '}');
     return renamed(originalFunction);
 } // also works with older JavaScript engines
+/**** expect[ed]Value ****/
+function expectValue(Description, Argument) {
+    if (Argument == null) {
+        throwError("MissingArgument: no " + escaped(Description) + " given");
+    }
+    else {
+        return Argument.valueOf();
+    }
+}
 /**** allow/expect[ed]NonEmptyString ****/
 var allowNonEmptyString = /*#__PURE__*/ ValidatorForClassifier(ValueIsNonEmptyString, acceptNil, 'non-empty literal string');
 var expectNonEmptyString = /*#__PURE__*/ ValidatorForClassifier(ValueIsNonEmptyString, rejectNil, 'non-empty literal string');
@@ -468,19 +478,41 @@ function updateApplicationRecordBy(Settings) {
     });
 }
 /**** uploadToApplication ****/
-function uploadToApplication(Archive) {
+function uploadToApplication(ZIPArchive) {
     return __awaiter(this, void 0, void 0, function () {
+        var Signal_6;
         return __generator(this, function (_a) {
-            assertDeveloperFocus();
-            assertApplicationFocus();
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0:
+                    expectValue('ZIP archive', ZIPArchive);
+                    if (!Buffer.isBuffer(ZIPArchive))
+                        throwError('InvalidArgument: the given ZIP archive is no valid Node.js buffer');
+                    assertDeveloperFocus();
+                    assertApplicationFocus();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'POST', '{{dashboard_url}}/api/app/{{application_id}}/version', {
+                            application_id: currentApplicationId
+                        }, ZIPArchive)];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_6 = _a.sent();
+                    switch (Signal_6.HTTPStatus) {
+                        // no knowledge about HTTP status Codes yet
+                        default: throw Signal_6;
+                    }
+                case 4: return [2 /*return*/];
+            }
         });
     });
 }
 /**** deleteApplication ****/
 function deleteApplication(ApplicationId) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_6;
+        var Signal_7;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -500,10 +532,10 @@ function deleteApplication(ApplicationId) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_6 = _a.sent();
-                    switch (Signal_6.HTTPStatus) {
+                    Signal_7 = _a.sent();
+                    switch (Signal_7.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_6;
+                        default: throw Signal_7;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -513,7 +545,7 @@ function deleteApplication(ApplicationId) {
 /**** ApplicationStorage ****/
 function ApplicationStorage() {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_7;
+        var Response, Signal_8;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -527,10 +559,10 @@ function ApplicationStorage() {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_7 = _a.sent();
-                    switch (Signal_7.HTTPStatus) {
+                    Signal_8 = _a.sent();
+                    switch (Signal_8.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_7;
+                        default: throw Signal_8;
                     }
                 case 4: return [2 /*return*/, Response || {}];
             }
@@ -540,7 +572,7 @@ function ApplicationStorage() {
 /**** ApplicationStorageEntry ****/
 function ApplicationStorageEntry(StorageKey) {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_8;
+        var Response, Signal_9;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -557,11 +589,11 @@ function ApplicationStorageEntry(StorageKey) {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_8 = _a.sent();
-                    switch (Signal_8.HTTPStatus) {
+                    Signal_9 = _a.sent();
+                    switch (Signal_9.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
                         case 404: return [2 /*return*/, undefined];
-                        default: throw Signal_8;
+                        default: throw Signal_9;
                     }
                 case 4: return [2 /*return*/, Response];
             }
@@ -571,7 +603,7 @@ function ApplicationStorageEntry(StorageKey) {
 /**** setApplicationStorageEntryTo ****/
 function setApplicationStorageEntryTo(StorageKey, StorageValue) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_9;
+        var Signal_10;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -589,10 +621,10 @@ function setApplicationStorageEntryTo(StorageKey, StorageValue) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_9 = _a.sent();
-                    switch (Signal_9.HTTPStatus) {
+                    Signal_10 = _a.sent();
+                    switch (Signal_10.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_9;
+                        default: throw Signal_10;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -602,7 +634,7 @@ function setApplicationStorageEntryTo(StorageKey, StorageValue) {
 /**** deleteApplicationStorageEntry ****/
 function deleteApplicationStorageEntry(StorageKey) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_10;
+        var Signal_11;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -619,11 +651,11 @@ function deleteApplicationStorageEntry(StorageKey) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_10 = _a.sent();
-                    switch (Signal_10.HTTPStatus) {
+                    Signal_11 = _a.sent();
+                    switch (Signal_11.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
                         case 404: return [2 /*return*/];
-                        default: throw Signal_10;
+                        default: throw Signal_11;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -633,7 +665,7 @@ function deleteApplicationStorageEntry(StorageKey) {
 /**** clearApplicationStorage ****/
 function clearApplicationStorage() {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_11;
+        var Signal_12;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -647,10 +679,10 @@ function clearApplicationStorage() {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_11 = _a.sent();
-                    switch (Signal_11.HTTPStatus) {
+                    Signal_12 = _a.sent();
+                    switch (Signal_12.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_11;
+                        default: throw Signal_12;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -660,7 +692,7 @@ function clearApplicationStorage() {
 /**** CustomerRecords ****/
 function CustomerRecords() {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_12;
+        var Response, Signal_13;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -674,10 +706,10 @@ function CustomerRecords() {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_12 = _a.sent();
-                    switch (Signal_12.HTTPStatus) {
+                    Signal_13 = _a.sent();
+                    switch (Signal_13.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_12;
+                        default: throw Signal_13;
                     }
                 case 4: return [2 /*return*/, Response || []];
             }
@@ -747,7 +779,7 @@ function focusOnCustomerWithAddress(CustomerAddress) {
 /**** focusOnNewCustomer ****/
 function focusOnNewCustomer(EMailAddress, Password) {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_13;
+        var Response, Signal_14;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -768,12 +800,12 @@ function focusOnNewCustomer(EMailAddress, Password) {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_13 = _a.sent();
-                    switch (Signal_13.HTTPStatus) {
+                    Signal_14 = _a.sent();
+                    switch (Signal_14.HTTPStatus) {
                         case 404: throwError('NoSuchApplication: the currently focused application could not be found');
                         case 409: throwError('UserExists: the given email address is already used');
                         case 422: throwError('BadPassword: the given password does not meet the VoltCloud requirements');
-                        default: throw Signal_13;
+                        default: throw Signal_14;
                     }
                     return [3 /*break*/, 4];
                 case 4:
@@ -792,7 +824,7 @@ function focusOnNewCustomer(EMailAddress, Password) {
 /**** resendConfirmationEMailToCustomer ****/
 function resendConfirmationEMailToCustomer(EMailAddress) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_14;
+        var Signal_15;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -814,12 +846,12 @@ function resendConfirmationEMailToCustomer(EMailAddress) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_14 = _a.sent();
-                    switch (Signal_14.HTTPStatus) {
+                    Signal_15 = _a.sent();
+                    switch (Signal_15.HTTPStatus) {
                         case 402: throwError('NoSuchUser: the given user is unknown to the currently focused application');
                         case 404: throwError('NoSuchApplication: the currently focused application could not be found');
                         case 501: throwError('Unsupported: the currently focused application does not support customer confirmations');
-                        default: throw Signal_14;
+                        default: throw Signal_15;
                     }
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
@@ -830,7 +862,7 @@ function resendConfirmationEMailToCustomer(EMailAddress) {
 /**** confirmCustomerUsing ****/
 function confirmCustomerUsing(Token) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_15;
+        var Signal_16;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -847,10 +879,10 @@ function confirmCustomerUsing(Token) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_15 = _a.sent();
-                    switch (Signal_15.HTTPStatus) {
+                    Signal_16 = _a.sent();
+                    switch (Signal_16.HTTPStatus) {
                         case 401: throwError('BadToken: the given token can not be recognized');
-                        default: throw Signal_15;
+                        default: throw Signal_16;
                     }
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
@@ -861,7 +893,7 @@ function confirmCustomerUsing(Token) {
 /**** startPasswordResetForCustomer ****/
 function startPasswordResetForCustomer(EMailAddress) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_16;
+        var Signal_17;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -883,12 +915,12 @@ function startPasswordResetForCustomer(EMailAddress) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_16 = _a.sent();
-                    switch (Signal_16.HTTPStatus) {
+                    Signal_17 = _a.sent();
+                    switch (Signal_17.HTTPStatus) {
                         case 402: throwError('NoSuchUser: the given user is unknown to the currently focused application');
                         case 404: throwError('NoSuchApplication: the currently focused application could not be found');
                         case 501: throwError('Unsupported: the currently focused application does not support password resets');
-                        default: throw Signal_16;
+                        default: throw Signal_17;
                     }
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
@@ -899,7 +931,7 @@ function startPasswordResetForCustomer(EMailAddress) {
 /**** resetCustomerPasswordUsing ****/
 function resetCustomerPasswordUsing(Token, Password) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_17;
+        var Signal_18;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -919,11 +951,11 @@ function resetCustomerPasswordUsing(Token, Password) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_17 = _a.sent();
-                    switch (Signal_17.HTTPStatus) {
+                    Signal_18 = _a.sent();
+                    switch (Signal_18.HTTPStatus) {
                         case 401: throwError('BadToken: the given token can not be recognized');
                         case 422: throwError('BadPassword: the given password does not meet the VoltCloud requirements');
-                        default: throw Signal_17;
+                        default: throw Signal_18;
                     }
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
@@ -980,7 +1012,7 @@ function CustomerRecord(CustomerId) {
 /**** deleteCustomer ****/
 function deleteCustomer() {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_18;
+        var Signal_19;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -995,10 +1027,10 @@ function deleteCustomer() {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_18 = _a.sent();
-                    switch (Signal_18.HTTPStatus) {
+                    Signal_19 = _a.sent();
+                    switch (Signal_19.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_18;
+                        default: throw Signal_19;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -1008,7 +1040,7 @@ function deleteCustomer() {
 /**** CustomerStorage ****/
 function CustomerStorage() {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_19;
+        var Response, Signal_20;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1023,10 +1055,10 @@ function CustomerStorage() {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_19 = _a.sent();
-                    switch (Signal_19.HTTPStatus) {
+                    Signal_20 = _a.sent();
+                    switch (Signal_20.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_19;
+                        default: throw Signal_20;
                     }
                 case 4: return [2 /*return*/, Response || {}];
             }
@@ -1036,7 +1068,7 @@ function CustomerStorage() {
 /**** CustomerStorageEntry ****/
 function CustomerStorageEntry(StorageKey) {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_20;
+        var Response, Signal_21;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1054,11 +1086,11 @@ function CustomerStorageEntry(StorageKey) {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_20 = _a.sent();
-                    switch (Signal_20.HTTPStatus) {
+                    Signal_21 = _a.sent();
+                    switch (Signal_21.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
                         case 404: return [2 /*return*/, undefined];
-                        default: throw Signal_20;
+                        default: throw Signal_21;
                     }
                 case 4: return [2 /*return*/, Response];
             }
@@ -1068,7 +1100,7 @@ function CustomerStorageEntry(StorageKey) {
 /**** setCustomerStorageEntryTo ****/
 function setCustomerStorageEntryTo(StorageKey, StorageValue) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_21;
+        var Signal_22;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1087,10 +1119,10 @@ function setCustomerStorageEntryTo(StorageKey, StorageValue) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_21 = _a.sent();
-                    switch (Signal_21.HTTPStatus) {
+                    Signal_22 = _a.sent();
+                    switch (Signal_22.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_21;
+                        default: throw Signal_22;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -1100,7 +1132,7 @@ function setCustomerStorageEntryTo(StorageKey, StorageValue) {
 /**** deleteCustomerStorageEntry ****/
 function deleteCustomerStorageEntry(StorageKey) {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_22;
+        var Signal_23;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1118,11 +1150,11 @@ function deleteCustomerStorageEntry(StorageKey) {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_22 = _a.sent();
-                    switch (Signal_22.HTTPStatus) {
+                    Signal_23 = _a.sent();
+                    switch (Signal_23.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
                         case 404: return [2 /*return*/];
-                        default: throw Signal_22;
+                        default: throw Signal_23;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -1132,7 +1164,7 @@ function deleteCustomerStorageEntry(StorageKey) {
 /**** clearCustomerStorage ****/
 function clearCustomerStorage() {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_23;
+        var Signal_24;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1147,10 +1179,10 @@ function clearCustomerStorage() {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_23 = _a.sent();
-                    switch (Signal_23.HTTPStatus) {
+                    Signal_24 = _a.sent();
+                    switch (Signal_24.HTTPStatus) {
                         // no knowledge about HTTP status Codes yet
-                        default: throw Signal_23;
+                        default: throw Signal_24;
                     }
                 case 4: return [2 /*return*/];
             }
@@ -1206,7 +1238,7 @@ function assertCustomerFocus() {
 /**** loginDeveloper ****/
 function loginDeveloper(EMailAddress, Password) {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_24;
+        var Response, Signal_25;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -1227,11 +1259,11 @@ function loginDeveloper(EMailAddress, Password) {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_24 = _a.sent();
-                    switch (Signal_24.HTTPStatus) {
+                    Signal_25 = _a.sent();
+                    switch (Signal_25.HTTPStatus) {
                         case 401: throwError('LoginFailed: developer could not be logged in');
                         case 402: throwError('NoSuchUser: the given developer is unknown');
-                        default: throw Signal_24;
+                        default: throw Signal_25;
                     }
                     return [3 /*break*/, 4];
                 case 4:
@@ -1255,7 +1287,7 @@ function loginDeveloper(EMailAddress, Password) {
 function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
     if (firstAttempt === void 0) { firstAttempt = true; }
     return __awaiter(this, void 0, void 0, function () {
-        var fullParameters, resolvedURL, RequestOptions, RequestBody;
+        var fullParameters, resolvedURL, RequestOptions, RequestBody, Boundary;
         return __generator(this, function (_a) {
             fullParameters = Object.assign({}, {
                 dashboard_id: DashboardId,
@@ -1279,15 +1311,27 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
                 RequestOptions.headers['authorization'] = 'Bearer ' + currentAccessToken;
             }
             if (Data != null) {
-                //      if (Data instanceof Blob) {
-                // <<<<
-                //      } else {
-                RequestBody = JSON.stringify(Data);
-                // @ts-ignore we definitely want to index with a literal
-                RequestOptions.headers['content-type'] = 'application/json';
+                if (Buffer.isBuffer(Data)) {
+                    Boundary = 'form-boundary';
+                    RequestBody = Buffer.concat([
+                        Buffer.from([
+                            '--' + Boundary,
+                            'Content-Disposition: form-data; name="file"; filename="index.zip"',
+                            'Content-Type: application/zip'
+                        ].join('\r\n') + '\r\n' + '\r\n', 'utf8'),
+                        Data,
+                        Buffer.from('\r\n' + '--' + Boundary + '--' + '\r\n', 'utf8')
+                    ]);
+                    // @ts-ignore we definitely want to index with a literal
+                    RequestOptions.headers['content-type'] = 'multipart/form-data; boundary=' + Boundary;
+                }
+                else {
+                    RequestBody = JSON.stringify(Data);
+                    // @ts-ignore we definitely want to index with a literal
+                    RequestOptions.headers['content-type'] = 'application/json';
+                }
                 // @ts-ignore we definitely want to index with a literal
                 RequestOptions.headers['content-length'] = RequestBody.length;
-                //      }
             }
             return [2 /*return*/, new Promise(function (resolve, reject) {
                     var Request = https.request(resolvedURL, RequestOptions, function (Response) {
@@ -1301,6 +1345,7 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
                             var StatusCode = Response.statusCode;
                             var ContentType = Response.headers['content-type'] || '';
                             switch (true) {
+                                case (StatusCode === 201): // often with content-type "text/plain"
                                 case (StatusCode === 204):
                                     return resolve(undefined);
                                 case (StatusCode >= 200) && (StatusCode < 300):

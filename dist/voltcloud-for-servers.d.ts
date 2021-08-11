@@ -1,3 +1,5 @@
+/// <reference types="node" />
+import { Buffer } from 'buffer';
 /**** VoltCloud-specific types and constants ****/
 export declare const ApplicationNamePattern: RegExp;
 export declare const maxApplicationNameLength = 63;
@@ -73,7 +75,7 @@ export declare function changeApplicationNameTo(ApplicationName: VC_ApplicationN
 /**** updateApplicationRecordBy ****/
 export declare function updateApplicationRecordBy(Settings: VC_ApplicationUpdate): Promise<void>;
 /**** uploadToApplication ****/
-export declare function uploadToApplication(Archive: Blob): Promise<void>;
+export declare function uploadToApplication(ZIPArchive: Buffer): Promise<void>;
 /**** deleteApplication ****/
 export declare function deleteApplication(ApplicationId: string): Promise<void>;
 /**** ApplicationStorage ****/
