@@ -247,6 +247,8 @@ function quoted(Text, Quote) {
 /**** VoltCloud-specific types and constants ****/
 var ApplicationNamePattern = /^[0-9a-z][-0-9a-z]*$/; //see dashboard
 var maxApplicationNameLength = 63; // see discussion forum
+var maxEMailAddressLength = 255; // dto.
+var maxNamePartLength = 255; // dto.
 var maxStorageKeyLength = 255; // as mentioned in REST API docs
 var maxStorageValueLength = 1048574; // see discussion forum
 /**** internal constants and variables ****/
@@ -1440,5 +1442,5 @@ function namedError(Message, Details) {
     return Result;
 }
 
-export { ApplicationNamePattern, ApplicationRecord, ApplicationRecords, ApplicationStorage, ApplicationStorageEntry, CustomerRecord, CustomerRecords, CustomerStorage, CustomerStorageEntry, ValueIsApplicationName, ValueIsPassword, ValueIsStorageKey, ValueIsStorageValue, actOnBehalfOfDeveloper, allowApplicationName, allowPassword, allowStorageKey, allowStorageValue, allowedApplicationName, allowedPassword, allowedStorageKey, allowedStorageValue, changeApplicationNameTo, clearApplicationStorage, clearCustomerStorage, confirmCustomerUsing, deleteApplication, deleteApplicationStorageEntry, deleteCustomer, deleteCustomerStorageEntry, expectApplicationName, expectPassword, expectStorageKey, expectStorageValue, expectedApplicationName, expectedPassword, expectedStorageKey, expectedStorageValue, focusOnApplication, focusOnApplicationCalled, focusOnCustomer, focusOnCustomerWithAddress, focusOnNewApplication, focusOnNewCustomer, maxApplicationNameLength, maxStorageKeyLength, maxStorageValueLength, resendConfirmationEMailToCustomer, resetCustomerPasswordUsing, setApplicationStorageEntryTo, setCustomerStorageEntryTo, startPasswordResetForCustomer, updateApplicationRecordBy, uploadToApplication };
+export { ApplicationNamePattern, ApplicationRecord, ApplicationRecords, ApplicationStorage, ApplicationStorageEntry, CustomerRecord, CustomerRecords, CustomerStorage, CustomerStorageEntry, ValueIsApplicationName, ValueIsPassword, ValueIsStorageKey, ValueIsStorageValue, actOnBehalfOfDeveloper, allowApplicationName, allowPassword, allowStorageKey, allowStorageValue, allowedApplicationName, allowedPassword, allowedStorageKey, allowedStorageValue, changeApplicationNameTo, clearApplicationStorage, clearCustomerStorage, confirmCustomerUsing, deleteApplication, deleteApplicationStorageEntry, deleteCustomer, deleteCustomerStorageEntry, expectApplicationName, expectPassword, expectStorageKey, expectStorageValue, expectedApplicationName, expectedPassword, expectedStorageKey, expectedStorageValue, focusOnApplication, focusOnApplicationCalled, focusOnCustomer, focusOnCustomerWithAddress, focusOnNewApplication, focusOnNewCustomer, maxApplicationNameLength, maxEMailAddressLength, maxNamePartLength, maxStorageKeyLength, maxStorageValueLength, resendConfirmationEMailToCustomer, resetCustomerPasswordUsing, setApplicationStorageEntryTo, setCustomerStorageEntryTo, startPasswordResetForCustomer, updateApplicationRecordBy, uploadToApplication };
 //# sourceMappingURL=voltcloud-for-servers.esm.js.map

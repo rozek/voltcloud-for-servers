@@ -3,6 +3,8 @@ import { Buffer } from 'buffer';
 /**** VoltCloud-specific types and constants ****/
 export declare const ApplicationNamePattern: RegExp;
 export declare const maxApplicationNameLength = 63;
+export declare const maxEMailAddressLength = 255;
+export declare const maxNamePartLength = 255;
 export declare const maxStorageKeyLength = 255;
 export declare const maxStorageValueLength = 1048574;
 export declare type VC_ApplicationName = string;
@@ -36,23 +38,26 @@ export declare type VC_ApplicationUpdate = {
 };
 export declare type VC_CustomerRecord = {
     id: string;
-    email: string;
-    first_name?: string;
-    last_name?: string;
+    email: VC_EMailAddress;
+    first_name?: VC_NamePart;
+    last_name?: VC_NamePart;
     confirmed: boolean;
     admin: boolean;
     meta?: any;
 };
 export declare type VC_CustomerUpdate = {
-    email?: string;
+    email?: VC_EMailAddress;
     password?: {
-        old: string;
-        new: string;
-        confirmation: string;
+        old: VC_Password;
+        new: VC_Password;
+        confirmation: VC_Password;
     };
-    first_name?: string;
-    last_name?: string;
+    first_name?: VC_NamePart;
+    last_name?: VC_NamePart;
 };
+export declare type VC_EMailAddress = string;
+export declare type VC_Password = string;
+export declare type VC_NamePart = string;
 export declare type VC_StorageKey = string;
 export declare type VC_StorageValue = string | undefined;
 export declare type VC_StorageSet = {
@@ -105,7 +110,7 @@ export declare function startPasswordResetForCustomer(EMailAddress?: string): Pr
 /**** resetCustomerPasswordUsing ****/
 export declare function resetCustomerPasswordUsing(Token: string, Password: string): Promise<void>;
 /**** CustomerRecord ****/
-export declare function CustomerRecord(CustomerId: string): Promise<VC_CustomerRecord | undefined>;
+export declare function CustomerRecord(CustomerId?: string): Promise<VC_CustomerRecord | undefined>;
 /**** deleteCustomer ****/
 export declare function deleteCustomer(): Promise<void>;
 /**** CustomerStorage ****/
