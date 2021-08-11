@@ -8,6 +8,8 @@ a simple VoltCloud library for servers
 
 `voltcloud-for-applications` is a simple client library for servers based on Node.js which need access to VoltCloud and its functions. <!-- It is the counterpart of [voltcloud-for-applications](https://github.com/rozek/voltcloud-for-applications) which provides a similar functionality (but from the viewpoint of an application user - aka "customer") for Web-based applications.-->
 
+See below for a "smoke test" which may also serve as an example for how to use this library.
+
 > Please note: the author is not affiliated with the NSB Corporation in any way. If you want to blame any of the author's VoltCloud-related tools and libraries for some misbehaviour, it's not the fault of George Henne and his team - it is the author's mistake!
 
 **NPM users**: please consider the [Github README](https://github.com/rozek/voltcloud-for-servers/blob/main/README.md) for the latest description of this package (as updating the docs would otherwise always require a new NPM package version)
@@ -83,6 +85,12 @@ TypeScript programmers may import the following types in order to benefit from s
 * **`async function setCustomerStorageEntryTo (StorageKey:VC_StorageKey, StorageValue:VC_StorageValue):Promise<void>`**<br>sets the entry given by `StorageKey` in the key-value store for the current target customer to the value given by `StorageValue` (which must be a JavaScript string). If the entry does not yet exist, it will be created
 * **`async function deleteCustomerStorageEntry (StorageKey:VC_StorageKey):Promise<void>`**<br>removes the entry given by `StorageKey` from the key-value store for the current target customer. It is ok to "delete" a non-existing entry (this function is "idempotent")
 * **`async function clearCustomerStorage ():Promise<void>`**<br>removes all entries from the key-value store for the current target customer. It is ok to "clear" an empty store (this function is "idempotent")
+
+## Smoke Test ##
+
+This repository contains a small "smoke test" which may also serve as an example for how to use this library.
+
+
 
 ## Build Instructions ##
 
