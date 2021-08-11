@@ -1057,13 +1057,14 @@
           let StatusCode  = Response.statusCode
           let ContentType = Response.headers['content-type'] || ''
           switch (true) {
-            case (StatusCode === 201):   // often with content-type "text/plain"
             case (StatusCode === 204):
               return resolve(undefined)
             case (StatusCode >= 200) && (StatusCode < 300):
               switch (true) {
                 case ContentType.startsWith('application/json'):
                   return resolve(JSON.parse(ResponseData))
+                case (StatusCode === 201): // often w/ content-type "text/plain"
+                  return resolve(undefined)
                 default:
                   return reject(namedError(
                     'RequestFailed: unexpected response content type ' +
@@ -1124,8 +1125,6 @@
         })
 
         if (RequestBody != null) { Request.write(RequestBody) }
-console.log('  >>',Request.method,resolvedURL)
-if (Request.getHeader('Content-Type') != null) console.log('  >>',Request.getHeader('Content-Type'))
       Request.end()
     })
   }
