@@ -18,6 +18,9 @@
     deleteCustomerStorageEntry, clearCustomerStorage
   } from './dist/voltcloud-for-servers.esm.js'
 
+  import path from 'path'
+  import  fs  from 'fs'
+
   import { expect } from 'chai'
 
 /**** some constants ****/
@@ -352,6 +355,28 @@
 
   console.log('- deleting customer "' + CustomerAddress + '"')
   await deleteCustomer()
+
+/**** if possible: test file upload ****/
+
+  let Archive
+  try {
+    let FilePath = path.join(process.cwd(),'smoke-test-archive-for-upload.zip')
+    Archive = fs.readFileSync(FilePath)
+  } catch (Signal) {
+    console.log('>>>> warning: could not load file "smoke-test-archive-for-upload.zip"')
+    console.log('>>>> file upload will not be tested')
+console.error(Signal)
+  }
+
+  if (Archive != null) {
+    console.log('- uploading file archive (' + Archive.length + ' bytes)')
+
+    await uploadToApplication(Archive)
+
+    ApplicationInfo = await ApplicationRecord()
+    expect(ApplicationInfo).to.be.an('object')
+    expect(ApplicationInfo.last_upload).to.exist
+  }
 
 /**** deleteApplication ****/
 
