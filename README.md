@@ -129,7 +129,15 @@ This repository contains a small "smoke test" (in a file called "smoke-test.js")
 
 The test becomes available if you download this repository (either using [git](https://git-scm.com/) in any of its variants or by unpacking a downloaded a [ZIP archive containing this repo](https://github.com/rozek/voltcloud-for-servers/archive/refs/heads/main.zip))
 
-It may be configured using the following set of environment variables:
+Now navigate to the folder containg the files of this repository and run
+
+```
+npm install
+```
+
+once in order to install any dependencies for the test.
+
+The smoke test itself may be configured using the following set of environment variables:
 
 * **`developer_email_address`** - set this to the email address of the developer for whom the test should run
 * **`developer_password`** - set this to the developer's password
