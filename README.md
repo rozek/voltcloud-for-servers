@@ -20,6 +20,37 @@ See below for a "smoke test" which may also serve as an example for how to use t
 
 `voltcloud-for-servers` requires Node.js. Since you are visiting this page, chances are good that you already have Node.js installed on your machine - if not, please follow the instructions found on [nodejs.org](https://nodejs.org/) to install it (the LTS version is sufficient if you don't plan to use Node.js on a regular basis)
 
+## Installation ##
+
+Simply install the package into your build environment using [NPM](https://docs.npmjs.com/) with the command
+
+```
+npm install voltcloud-for-servers
+```
+
+### Access ###
+
+Within your Node.js script, you may then import any functions you need - the following example will import all of them:
+
+```
+import {
+  actOnBehalfOfDeveloper, ApplicationRecords, CustomerRecords,
+  focusOnApplication, focusOnApplicationCalled, focusOnNewApplication,
+  ApplicationRecord, changeApplicationNameTo, updateApplicationRecordBy,
+    uploadToApplication, deleteApplication,
+  ApplicationStorage, ApplicationStorageEntry, setApplicationStorageEntryTo,
+    deleteApplicationStorageEntry, clearApplicationStorage,
+  focusOnCustomer, focusOnCustomerWithAddress, focusOnNewCustomer,
+  resendConfirmationEMailToCustomer, confirmCustomerUsing,
+  startPasswordResetForCustomer, resetCustomerPasswordUsing,
+  CustomerRecord, deleteCustomer,
+  CustomerStorage, CustomerStorageEntry, setCustomerStorageEntryTo,
+  deleteCustomerStorageEntry, clearCustomerStorage
+} from 'voltcloud-for-servers'
+```
+
+Just copy that statement into your source code and remove all unwanted functions.
+
 ## API Reference ##
 
 ### exported Constants ###
