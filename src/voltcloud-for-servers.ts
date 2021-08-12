@@ -4,7 +4,7 @@
 
   import {
     throwError, quoted,
-    ValueIsString, ValueIsNonEmptyString, ValueIsTextline,
+    ValueIsString, ValueIsNonEmptyString, ValueIsTextline, ValueIsArray,
     expectValue,
     allowNonEmptyString, expectNonEmptyString, expectPlainObject,
     allowEMailAddress, expectEMailAddress, expectURL,
@@ -16,7 +16,8 @@
 
 /**** VoltCloud-specific types and constants ****/
 
-  export const ApplicationNamePattern   = /^[0-9a-z][-0-9a-z]*$/ //see dashboard
+  export const ApplicationIdPattern     = /^[a-zA-Z0-9]{6,}$/ // taken from a validation error message
+  export const ApplicationNamePattern   = /^([a-z0-9]|[a-z0-9][-a-z0-9]*[a-z0-9])$/ // dto.
   export const maxApplicationNameLength = 63             // see discussion forum
   export const maxEMailAddressLength    = 255                            // dto.
   export const maxNamePartLength        = 255                            // dto.
@@ -96,18 +97,9 @@
   export async function ApplicationRecords ():Promise<VC_ApplicationRecord[]> {
     assertDeveloperFocus()
 
-    let Response
-    try {
-      Response = await ResponseOf(
-        'private', 'GET', '{{dashboard_url}}/api/app'
-      )
-    } catch (Signal) {
-      switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
-        default: throw Signal
-      }
-    }
-
+    let Response = await ResponseOf(
+      'private', 'GET', '{{dashboard_url}}/api/app'
+    )
     return Response || []
   }
 
@@ -175,17 +167,9 @@
     currentApplicationId  = undefined
     currentApplicationURL = undefined
 
-    let Response
-    try {
-      Response = await ResponseOf(
-        'private', 'POST', '{{dashboard_url}}/api/app', null, {}
-      )
-    } catch (Signal) {
-      switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
-        default: throw Signal
-      }
-    }
+    let Response = await ResponseOf(
+      'private', 'POST', '{{dashboard_url}}/api/app', null, {}
+    )
 
     currentApplicationId  = Response.id
     currentApplicationURL = Response.url
@@ -204,7 +188,15 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+          }
+          break
+        case 422:
+          if (Signal.message === 'Could not decode scope.') {
+            throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -230,7 +222,19 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+          }
+          break
+        case 409: throwError('ApplicationExists: an application with the given new name exists already')
+        case 422: switch (Signal.message) {
+            case 'Cannot change dashboard subdomain.':
+              throwError('NoSuchApplication: could not find the given application')
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -252,7 +256,19 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+          }
+          break
+        case 409: throwError('ApplicationExists: an application with the given new name exists already')
+        case 422: switch (Signal.message) {
+            case 'Cannot change dashboard subdomain.':
+              throwError('NoSuchApplication: could not find the given application')
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -279,7 +295,19 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+          }
+          break
+        case 406: throwError('InternalError: ' + Signal.message)
+        case 422: switch (Signal.message) {
+            case 'Cannot change dashboard subdomain.':
+              throwError('NoSuchApplication: could not find the given application')
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -307,7 +335,18 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 403: // if you try to delete the dashboard
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'App not found.':
+              return
+          }
+          break
+        case 409: throwError('ForbiddenOperation: ' + Signal.message)
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -326,7 +365,16 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -353,9 +401,22 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
-        case 404: return undefined
-        default:  throw Signal
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+              throwError('NoSuchApplication: could not find the given application or storage key')
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+            case 'Key does not exist.':
+              return undefined
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+            case 'The length of the key parameter must be <=255.':
+              throwError('InvalidArgument: the given storage key is too long')
+          }
+        default: throw Signal
       }
     }
 
@@ -381,7 +442,19 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+          }
+          break
+        case 413: throwError('InvalidArgument: the given storage value is too long')
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+            case 'The length of the key parameter must be <=255.':
+              throwError('InvalidArgument: the given storage key is too long')
+          }
         default: throw Signal
       }
     }
@@ -405,9 +478,22 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
-        case 404: return
-        default:  throw Signal
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+              throwError('NoSuchApplication: could not find the given application or storage key')
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+            case 'Key does not exist.':
+              return
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+            case 'The length of the key parameter must be <=255.':
+              throwError('InvalidArgument: the given storage key is too long')
+          }
+        default: throw Signal
       }
     }
   }
@@ -424,7 +510,16 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -443,7 +538,16 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -483,9 +587,9 @@
 /**** focusOnCustomerWithAddress ****/
 
   export async function focusOnCustomerWithAddress (
-    CustomerAddress:string
+    EMailAddress:string
   ):Promise<void> {
-    expectEMailAddress('VoltCloud customer email address',CustomerAddress)
+    expectEMailAddress('VoltCloud customer email address',EMailAddress)
 
 //  assertDeveloperFocus()                  // will be done by "CustomerRecords"
 //  assertApplicationFocus()                                             // dto.
@@ -496,15 +600,15 @@
     let CustomerRecordList = await CustomerRecords()
     for (let i = 0, l = CustomerRecordList.length; i < l; i++) {
       let CustomerRecord = CustomerRecordList[i]
-      if (CustomerRecord.email === CustomerAddress) {
+      if (CustomerRecord.email === EMailAddress) {
         currentCustomerId      = CustomerRecord.id
-        currentCustomerAddress = CustomerAddress
+        currentCustomerAddress = EMailAddress
         return
       }
     }
 
     throwError(
-      'NoSuchCustomer: no customer with email address ' + quoted(CustomerAddress) +
+      'NoSuchCustomer: no customer with email address ' + quoted(EMailAddress) +
       ' found for the currently focused application'
     )
   }
@@ -532,9 +636,16 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-        case 404: throwError('NoSuchApplication: the currently focused application could not be found')
-        case 409: throwError('UserExists: the given email address is already used')
-        case 422: throwError('BadPassword: the given password does not meet the VoltCloud requirements')
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'App not found.':
+              throwError('NoSuchApplication: could not find the given application')
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -571,9 +682,10 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-        case 402: throwError('NoSuchUser: the given user is unknown to the currently focused application')
-        case 404: throwError('NoSuchApplication: the currently focused application could not be found')
-        case 501: throwError('Unsupported: the currently focused application does not support customer confirmations')
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -625,9 +737,10 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-        case 402: throwError('NoSuchUser: the given user is unknown to the currently focused application')
-        case 404: throwError('NoSuchApplication: the currently focused application could not be found')
-        case 501: throwError('Unsupported: the currently focused application does not support password resets')
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid application id given')
+          }
         default: throw Signal
       }
     }
@@ -655,7 +768,6 @@
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
         case 401: throwError('BadToken: the given token can not be recognized')
-        case 422: throwError('BadPassword: the given password does not meet the VoltCloud requirements')
         default: throw Signal
       }
     }
@@ -685,24 +797,6 @@
     }
 
     return undefined
-
-/*
-    let Response
-    try {
-      Response = await ResponseOf(
-        'private', 'GET', '{{application_url}}/api/user/{{customer_id}}',{
-          customer_id:CustomerId
-        }
-      )
-    } catch (Signal) {
-      switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
-        default: throw Signal
-      }
-    }
-
-    return Response
-*/
   }
 
 /**** deleteCustomer ****/
@@ -718,7 +812,14 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'User not found.': return
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid user id given')
+          }
         default: throw Signal
       }
     }
@@ -738,7 +839,16 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'User not found.':
+              throwError('NoSuchCustomer: could not find the given customer')
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid customer id given')
+          }
         default: throw Signal
       }
     }
@@ -766,9 +876,22 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
-        case 404: return undefined
-        default:  throw Signal
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+              throwError('NoSuchCustomer: could not find the given customer or storage key')
+            case 'User not found.':
+              throwError('NoSuchCustomer: could not find the given customer')
+            case 'Key does not exist.':
+              return undefined
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid customer id given')
+            case 'The length of the key parameter must be <=255.':
+              throwError('InvalidArgument: the given storage key is too long')
+          }
+        default: throw Signal
       }
     }
 
@@ -795,7 +918,19 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'User not found.':
+              throwError('NoSuchCustomer: could not find the given customer')
+          }
+          break
+        case 413: throwError('InvalidArgument: the given storage value is too long')
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid customer id given')
+            case 'The length of the key parameter must be <=255.':
+              throwError('InvalidArgument: the given storage key is too long')
+          }
         default: throw Signal
       }
     }
@@ -820,9 +955,19 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
-        case 404: return
-        default:  throw Signal
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'User not found.':
+              throwError('NoSuchCustomer: could not find the given customer')
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid customer id given')
+            case 'The length of the key parameter must be <=255.':
+              throwError('InvalidArgument: the given storage key is too long')
+          }
+        default: throw Signal
       }
     }
   }
@@ -840,7 +985,16 @@
       )
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
-// no knowledge about HTTP status Codes yet
+        case 404: switch (Signal.message) {
+            case 'Could not route your request.':
+            case 'User not found.':
+              throwError('NoSuchCustomer: could not find the given customer')
+          }
+          break
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid customer id given')
+          }
         default: throw Signal
       }
     }
@@ -964,7 +1118,6 @@
     } catch (Signal) {
       switch (Signal.HTTPStatus) {
         case 401: throwError('LoginFailed: developer could not be logged in')
-        case 402: throwError('NoSuchUser: the given developer is unknown')
         default: throw Signal
       }
     }
@@ -1094,11 +1247,19 @@
                     ValueIsNonEmptyString(ErrorDetails.type) &&
                     ValueIsNonEmptyString(ErrorDetails.message)
                   ) {
-                    return reject(namedError(
-                      ErrorDetails.type + ': ' + ErrorDetails.message, {
-                        HTTPStatus:StatusCode, HTTPResponse:ResponseData
-                      }
-                    ))
+                    if (
+                      (StatusCode === 422) &&
+                      (ErrorDetails.type === 'ValidationError') &&
+                      (ErrorDetails.validations != null)
+                    ) {
+                      return reject(ValidationError(ErrorDetails))
+                    } else {
+                      return reject(namedError(
+                        ErrorDetails.type + ': ' + ErrorDetails.message, {
+                          HTTPStatus:StatusCode, HTTPResponse:ResponseData
+                        }
+                      ))
+                    }
                   }
                 } catch (Signal) { /* otherwise create a generic error message */ }
               }
@@ -1125,6 +1286,8 @@
         })
 
         if (RequestBody != null) { Request.write(RequestBody) }
+console.log('  >>',Request.method,resolvedURL)
+if (Request.getHeader('Content-Type') != null) console.log('  >>',Request.getHeader('Content-Type'))
       Request.end()
     })
   }
@@ -1162,5 +1325,62 @@
         Object.assign(Result,Details)                         // not fool-proof!
       }
     return Result
+  }
+
+/**** ValidationError ****/
+
+  function ValidationError (Details:any):Error {
+    function named422Error (Message:string) {
+      return namedError(Message,{ HTTPStatus:422 })
+    }
+
+    if (
+      ValueIsArray(Details.validations.body) &&
+      (Details.validations.body[0] != null)
+    ) {
+      let firstMessage = Details.validations.body[0].messages[0]
+      switch (true) {
+        case firstMessage.contains('email'):
+          switch (Details.validations.body[0].property) {
+            case 'request.body.username':
+            case 'request.body.email': return named422Error('InvalidArgument: invalid EMail address given')
+          }
+          break
+        case firstMessage.contains('^([a-z0-9]|[a-z0-9][-a-z0-9]*[a-z0-9])$'):
+          switch (Details.validations.body[0].property) {
+            case 'request.body.subdomain': return named422Error('InvalidArgument: invalid application name given')
+          }
+          break
+        case firstMessage.contains('does not meet minimum length of 1'):
+          switch (Details.validations.body[0].property) {
+            case 'request.body.subdomain':        return named422Error('MissingArgument: no application name given')
+            case 'request.body.confirmation_url': return named422Error('MissingArgument: no Customer Confirmation URL given')
+            case 'request.body.reset_url':        return named422Error('MissingArgument: no Password Reset URL given')
+          }
+          break
+        case firstMessage.contains('does not meet maximum length of 63'):
+          switch (Details.validations.body[0].property) {
+            case 'request.body.subdomain':        return named422Error('InvalidArgument: the given application name is too long')
+            case 'request.body.confirmation_url': return named422Error('InvalidArgument: the given Customer Confirmation URL is too long')
+            case 'request.body.reset_url':        return named422Error('InvalidArgument: the given Password Reset URL is too long')
+          }
+          break
+        case firstMessage.contains('additionalProperty'):
+          return named422Error('InvalidArgument: unsupported property given')
+        case firstMessage.contains('does not match pattern "[a-zA-Z0-9]{6,}"'):
+          return named422Error('InvalidArgument: invalid Application Id given')
+      }
+    }
+
+    if (
+      ValueIsArray(Details.validations.password) &&
+      (Details.validations.password[0] != null)
+    ) {
+      return named422Error('InvalidArgument: ' + Details.validations.password[0])
+    }
+
+  /**** fallback ****/
+
+    return namedError('InternalError: ' + Details.message, Details)
   }
 
