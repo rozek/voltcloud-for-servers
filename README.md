@@ -154,7 +154,7 @@ The test may be started from within a shell using
 node smoke-test.js
 ```
 
-Important: for all procedures to get tested, you will have to start the script three times - in between, you may have to set the environment variables `customer_confirmation_token` or `customer_password_reset_token` following the instructions printed on the console
+Important: for all procedures to get tested, you will have to start the script four times - in between, you may have to set the environment variables `customer_confirmation_token` or `customer_password_reset_token` following the instructions printed on the console
 
 ## Build Instructions ##
 
