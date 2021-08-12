@@ -70,10 +70,15 @@
   const DashboardURL = 'https://dashboard.voltcloud.io'
   const DashboardId  = 'RpYCMN'
 
-  let currentDeveloperId:       string | undefined
-  let currentDeveloperAddress:  string | undefined
-  let currentDeveloperPassword: string | undefined   // stored for token refresh
-  let currentAccessToken:       string | undefined
+  let activeDeveloperId:       string | undefined
+  let activeDeveloperAddress:  string | undefined
+  let activeDeveloperPassword: string | undefined    // stored for token refresh
+
+  let activeCustomerId:       string | undefined
+  let activeCustomerAddress:  string | undefined
+  let activeCustomerPassword: string | undefined     // stored for token refresh
+
+  let activeAccessToken: string | undefined
 
   let currentApplicationId:  string | undefined
   let currentApplicationURL: string | undefined
@@ -92,10 +97,21 @@
     await loginDeveloper(EMailAddress,Password)
   }
 
+/**** actOnBehalfOfCustomer ****/
+
+  export async function actOnBehalfOfCustomer (
+    EMailAddress:string, Password:string
+  ):Promise<void> {
+    expectEMailAddress('VoltCloud customer email address',EMailAddress)
+    expectPassword         ('VoltCloud customer password',Password)
+
+    await loginCustomer(EMailAddress,Password)
+  }
+
 /**** ApplicationRecords ****/
 
   export async function ApplicationRecords ():Promise<VC_ApplicationRecord[]> {
-    assertDeveloperFocus()
+    assertDeveloperMandate()
 
     let Response = await ResponseOf(
       'private', 'GET', '{{dashboard_url}}/api/app'
@@ -110,7 +126,7 @@
   ):Promise<void> {
     expectNonEmptyString('VoltCloud application id',ApplicationId)
 
-//  assertDeveloperFocus()               // will be done by "ApplicationRecords"
+//  assertDeveloperMandate()             // will be done by "ApplicationRecords"
 
     currentApplicationId  = undefined
     currentApplicationURL = undefined
@@ -138,7 +154,7 @@
   ):Promise<void> {
     expectApplicationName('VoltCloud application name',ApplicationName)
 
-//  assertDeveloperFocus()               // will be done by "ApplicationRecords"
+//  assertDeveloperMandate()             // will be done by "ApplicationRecords"
 
     currentApplicationId  = undefined
     currentApplicationURL = undefined
@@ -162,7 +178,7 @@
 /**** focusOnNewApplication ****/
 
   export async function focusOnNewApplication ():Promise<void> {
-    assertDeveloperFocus()               // will be done by "ApplicationRecords"
+    assertDeveloperMandate()
 
     currentApplicationId  = undefined
     currentApplicationURL = undefined
@@ -178,7 +194,7 @@
 /**** ApplicationRecord ****/
 
   export async function ApplicationRecord ():Promise<VC_ApplicationRecord | undefined> {
-    assertDeveloperFocus()
+    assertDeveloperMandate()
     assertApplicationFocus()
 
     let Response
@@ -211,7 +227,7 @@
   ):Promise<void> {
     expectApplicationName('VoltCloud application name',ApplicationName)
 
-    assertDeveloperFocus()
+    assertDeveloperMandate()
     assertApplicationFocus()
 
     try {
@@ -247,7 +263,7 @@
   ):Promise<void> {
     expectPlainObject('VoltCloud application settings',Settings)
 
-    assertDeveloperFocus()
+    assertDeveloperMandate()
     assertApplicationFocus()
 
     try {
@@ -284,7 +300,7 @@
       'InvalidArgument: the given ZIP archive is no valid Node.js buffer'
     )
 
-    assertDeveloperFocus()
+    assertDeveloperMandate()
     assertApplicationFocus()
 
     try {
@@ -320,7 +336,7 @@
   ):Promise<void> {
     allowNonEmptyString('VoltCloud application id',ApplicationId)
 
-    assertDeveloperFocus()
+    assertDeveloperMandate()
 
     if (ApplicationId == null) {
       assertApplicationFocus()
@@ -355,7 +371,7 @@
 /**** ApplicationStorage ****/
 
   export async function ApplicationStorage ():Promise<VC_StorageSet> {
-    assertDeveloperFocus()
+    assertDeveloperOrCustomerMandate()
     assertApplicationFocus()
 
     let Response
@@ -389,7 +405,7 @@
   ):Promise<VC_StorageValue | undefined> {
     expectStorageKey('VoltCloud application storage key',StorageKey)
 
-    assertDeveloperFocus()
+    assertDeveloperOrCustomerMandate()
     assertApplicationFocus()
 
     let Response
@@ -431,7 +447,7 @@
     expectStorageKey    ('VoltCloud application storage key',StorageKey)
     expectStorageValue('VoltCloud application storage value',StorageValue)
 
-    assertDeveloperFocus()
+    assertDeveloperMandate()
     assertApplicationFocus()
 
     try {
@@ -467,7 +483,7 @@
   ):Promise<void> {
     expectStorageKey('VoltCloud application storage key',StorageKey)
 
-    assertDeveloperFocus()
+    assertDeveloperMandate()
     assertApplicationFocus()
 
     try {
@@ -501,7 +517,7 @@
 /**** clearApplicationStorage ****/
 
   export async function clearApplicationStorage ():Promise<void> {
-    assertDeveloperFocus()
+    assertDeveloperMandate()
     assertApplicationFocus()
 
     try {
@@ -528,7 +544,7 @@
 /**** CustomerRecords ****/
 
   export async function CustomerRecords ():Promise<VC_CustomerRecord[]> {
-    assertDeveloperFocus()
+    assertDeveloperMandate()
     assertApplicationFocus()
 
     let Response
@@ -562,7 +578,7 @@
   ):Promise<void> {
     expectNonEmptyString('VoltCloud customer id',CustomerId)
 
-//  assertDeveloperFocus()                  // will be done by "CustomerRecords"
+//  assertDeveloperMandate()                // will be done by "CustomerRecords"
 //  assertApplicationFocus()                                             // dto.
 
     currentCustomerId      = undefined
@@ -591,7 +607,7 @@
   ):Promise<void> {
     expectEMailAddress('VoltCloud customer email address',EMailAddress)
 
-//  assertDeveloperFocus()                  // will be done by "CustomerRecords"
+//  assertDeveloperMandate()                // will be done by "CustomerRecords"
 //  assertApplicationFocus()                                             // dto.
 
     currentCustomerId      = undefined
@@ -621,7 +637,6 @@
     expectEMailAddress('VoltCloud customer email address',EMailAddress)
     expectPassword         ('VoltCloud customer password',Password)
 
-//  assertDeveloperFocus()                             // not really needed here
     assertApplicationFocus()
 
     let Response
@@ -665,7 +680,6 @@
   ):Promise<void> {
     allowEMailAddress('VoltCloud customer email address',EMailAddress)
 
-//  assertDeveloperFocus()                             // not really needed here
     assertApplicationFocus()
 
     if (EMailAddress == null) {
@@ -696,7 +710,6 @@
   export async function confirmCustomerUsing (Token:string):Promise<void> {
     expectNonEmptyString('VoltCloud customer confirmation token',Token)
 
-//  assertDeveloperFocus()                             // not really needed here
     assertApplicationFocus()
 
     try {
@@ -720,7 +733,6 @@
   ):Promise<void> {
     allowEMailAddress('VoltCloud customer email address',EMailAddress)
 
-//  assertDeveloperFocus()                             // not really needed here
     assertApplicationFocus()
 
     if (EMailAddress == null) {
@@ -754,7 +766,6 @@
     expectNonEmptyString('VoltCloud password reset token',Token)
     expectPassword         ('VoltCloud customer password',Password)
 
-//  assertDeveloperFocus()                             // not really needed here
     assertApplicationFocus()
 
     try {
@@ -780,7 +791,6 @@
   ):Promise<VC_CustomerRecord | undefined> {
     allowNonEmptyString('VoltCloud customer id',CustomerId)
 
-    assertDeveloperFocus()
     assertApplicationFocus()
 
     if (CustomerId == null) {
@@ -788,21 +798,188 @@
       CustomerId = currentCustomerId as string
     }
 
-  /**** custom implementation ****/
+    let Response
+      if (activeCustomerId == null) {
+        assertDeveloperMandate()
 
-    let CustomerRecordList = await CustomerRecords()
-    for (let i = 0, l = CustomerRecordList.length; i < l; i++) {
-      let CustomerRecord = CustomerRecordList[i]
-      if (CustomerRecord.id = CustomerId) { return CustomerRecord }
+      /**** custom implementation ****/
+
+        let CustomerRecordList = await CustomerRecords()
+        for (let i = 0, l = CustomerRecordList.length; i < l; i++) {
+          let CustomerRecord = CustomerRecordList[i]
+          if (CustomerRecord.id = CustomerId) {
+            Response = CustomerRecord
+            break
+          }
+        }
+      } else {
+        assertCustomerMandate()
+
+        try {
+          Response = await ResponseOf(
+            'private', 'GET', '{{application_url}}/api/user/{{customer_id}}', {
+              customer_id: CustomerId
+            }
+          )
+        } catch (Signal) {
+          switch (Signal.HTTPStatus) {
+            case 422: switch (Signal.message) {
+                case 'Could not decode scope.':
+                  throwError('InvalidArgument: invalid customer id given')
+              }
+            default: throw Signal
+          }
+        }
+      }
+
+    if ((Response != null) && (Response.id === CustomerId)) {
+//    currentCustomerId      = Response.id
+      currentCustomerAddress = Response.email              // might have changed
+
+      if (currentCustomerId === activeCustomerId) {
+        activeCustomerAddress = Response.email             // might have changed
+      }
+
+      return Response
+    } else {
+      throwError('InternalError: could not analyze response for registration request')
+    }
+  }
+
+/**** changeCustomerEMailAddressTo ****/
+
+  export async function changeCustomerEMailAddressTo (
+    EMailAddress:string
+  ):Promise<void> {
+    expectEMailAddress('VoltCloud customer email address',EMailAddress)
+
+    assertCustomerMandate()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+    let Response
+    try {
+      Response = await ResponseOf(
+        'private', 'PUT', '{{application_url}}/api/user/{{customer_id}}', null, {
+          email: EMailAddress
+        }
+      )
+    } catch (Signal) {
+      switch (Signal.HTTPStatus) {
+        case 404: throwError('NoSuchUser: the given customer does not exist')
+        case 409: throwError('UserExists: the given EMail address is already in use')
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid customer id given')
+          }
+        default: throw Signal
+      }
     }
 
-    return undefined
+    if ((Response != null) && (Response.id === currentCustomerId)) {
+//    currentCustomerId      = Response.id
+      currentCustomerAddress = Response.email
+
+      if (currentCustomerId === activeCustomerId) {
+        activeCustomerAddress = Response.email             // might have changed
+      }
+    } else {
+      throwError('InternalError: could not analyze response for registration request')
+    }
+  }
+
+/**** changeCustomerPasswordTo ****/
+
+  export async function changeCustomerPasswordTo (
+    Password:string
+  ):Promise<void> {
+    expectPassword('VoltCloud customer password',Password)
+
+    assertCustomerMandate()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+    let Response
+    try {
+      Response = await ResponseOf(
+        'private', 'PUT', '{{application_url}}/api/user/{{customer_id}}', null, {
+          password: {
+            old:          activeCustomerPassword,
+            new:          Password,
+            confirmation: Password
+          }
+        }
+      )
+    } catch (Signal) {
+      switch (Signal.HTTPStatus) {
+        case 403: throwError('ForbiddenOperation: wrong current password given')
+        case 404: throwError('NoSuchUser: the given customer does not exist')
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid customer id given')
+          }
+        default: throw Signal
+      }
+    }
+
+    if ((Response != null) && (Response.id === currentCustomerId)) {
+      if (currentCustomerId === activeCustomerId) {
+        activeCustomerPassword = Password
+      }
+    } else {
+      throwError('InternalError: could not analyze response for registration request')
+    }
+  }
+
+/**** updateCustomerRecordBy ****/
+
+  export async function updateCustomerRecordBy (
+    Settings:VC_CustomerUpdate
+  ):Promise<void> {
+    expectPlainObject('VoltCloud customer settings',Settings)
+
+    assertCustomerMandate()
+    assertApplicationFocus()
+    assertCustomerFocus()
+
+    let Response
+    try {
+      Response = await ResponseOf(
+        'private', 'PUT', '{{application_url}}/api/user/{{customer_id}}', null, Settings
+      )
+    } catch (Signal) {
+      switch (Signal.HTTPStatus) {
+        case 403: throwError('ForbiddenOperation: wrong current password given')
+        case 404: throwError('NoSuchUser: the given customer does not exist')
+        case 409: throwError('UserExists: the given EMail address is already in use')
+        case 422: switch (Signal.message) {
+            case 'Could not decode scope.':
+              throwError('InvalidArgument: invalid customer id given')
+          }
+        default: throw Signal
+      }
+    }
+
+    if ((Response != null) && (Response.id === currentCustomerId)) {
+//    currentCustomerId      = Response.id
+      currentCustomerAddress = Response.email              // might have changed
+
+      if (currentCustomerId === activeCustomerId) {
+        activeCustomerAddress = Response.email             // might have changed
+
+        if (Settings.password != null) {
+          activeCustomerPassword = Settings.password.new
+        }
+      }
+    } else {
+      throwError('InternalError: could not analyze response for registration request')
+    }
   }
 
 /**** deleteCustomer ****/
 
   export async function deleteCustomer ():Promise<void> {
-    assertDeveloperFocus()
+    assertDeveloperOrCustomerMandate()
     assertApplicationFocus()
     assertCustomerFocus()
 
@@ -828,7 +1005,7 @@
 /**** CustomerStorage ****/
 
   export async function CustomerStorage ():Promise<VC_StorageSet> {
-    assertDeveloperFocus()
+    assertDeveloperOrCustomerMandate()
     assertApplicationFocus()
     assertCustomerFocus()
 
@@ -863,7 +1040,7 @@
   ):Promise<VC_StorageValue | undefined> {
     expectStorageKey('VoltCloud customer storage key',StorageKey)
 
-    assertDeveloperFocus()
+    assertDeveloperOrCustomerMandate()
     assertApplicationFocus()
     assertCustomerFocus()
 
@@ -906,7 +1083,7 @@
     expectStorageKey    ('VoltCloud customer storage key',StorageKey)
     expectStorageValue('VoltCloud customer storage value',StorageValue)
 
-    assertDeveloperFocus()
+    assertDeveloperOrCustomerMandate()
     assertApplicationFocus()
     assertCustomerFocus()
 
@@ -943,7 +1120,7 @@
   ):Promise<void> {
     expectStorageKey('VoltCloud customer storage key',StorageKey)
 
-    assertDeveloperFocus()
+    assertDeveloperOrCustomerMandate()
     assertApplicationFocus()
     assertCustomerFocus()
 
@@ -975,7 +1152,7 @@
 /**** clearCustomerStorage ****/
 
   export async function clearCustomerStorage ():Promise<void> {
-    assertDeveloperFocus()
+    assertDeveloperOrCustomerMandate()
     assertApplicationFocus()
     assertCustomerFocus()
 
@@ -1071,19 +1248,35 @@
     ValueIsStorageValue, rejectNil, 'suitable VoltCloud storage value'
   ), expectedStorageValue = expectStorageValue
 
+/**** assertDeveloperMandate ****/
+
+  function assertDeveloperMandate ():void {
+    if (activeDeveloperId == null) throwError(
+      'InvalidState: please mandate a specific VoltCloud developer first'
+    )
+  }
+
+/**** assertCustomerMandate ****/
+
+  function assertCustomerMandate ():void {
+    if (activeCustomerId == null) throwError(
+      'InvalidState: please mandate a specific VoltCloud customer first'
+    )
+  }
+
+/**** assertDeveloperOrCustomerMandate ****/
+
+  function assertDeveloperOrCustomerMandate ():void {
+    if ((activeDeveloperId == null) && (activeCustomerId == null)) throwError(
+      'InvalidState: please mandate a specific VoltCloud developer or customer first'
+    )
+  }
+
 /**** assertApplicationFocus ****/
 
   function assertApplicationFocus ():void {
     if (currentApplicationId == null) throwError(
       'InvalidState: please focus on a specific VoltCloud application first'
-    )
-  }
-
-/**** assertDeveloperFocus ****/
-
-  function assertDeveloperFocus ():void {
-    if (currentDeveloperId == null) throwError(
-      'InvalidState: please focus on a specific VoltCloud developer first'
     )
   }
 
@@ -1100,10 +1293,18 @@
   async function loginDeveloper (
     EMailAddress:string, Password:string
   ):Promise<void> {
-    currentDeveloperId       = undefined           // avoid re-try after failure
-    currentDeveloperAddress  = undefined                                 // dto.
-    currentDeveloperPassword = undefined                                 // dto.
-    currentAccessToken       = undefined                                 // dto.
+    activeDeveloperId       = undefined            // avoid re-try after failure
+    activeDeveloperAddress  = undefined                                  // dto.
+    activeDeveloperPassword = undefined                                  // dto.
+
+    activeCustomerId       = undefined                 // clear customer mandate
+    activeCustomerAddress  = undefined                                   // dto.
+    activeCustomerPassword = undefined                                   // dto.
+
+    activeAccessToken = undefined
+
+    currentCustomerId      = undefined                   // unfocus any customer
+    currentCustomerAddress = undefined                                   // dto.
 
     let Response
     try {
@@ -1127,10 +1328,64 @@
       (Response.token_type === 'bearer') && ValueIsString(Response.access_token) &&
       ValueIsString(Response.user_id)
     ) {
-      currentDeveloperId       = Response.user_id
-      currentDeveloperAddress  = EMailAddress
-      currentDeveloperPassword = Password
-      currentAccessToken       = Response.access_token
+      activeDeveloperId       = Response.user_id
+      activeDeveloperAddress  = EMailAddress
+      activeDeveloperPassword = Password
+
+      activeAccessToken = Response.access_token
+    } else {
+      throwError('InternalError: could not analyze response for login request')
+    }
+  }
+
+/**** loginCustomer ****/
+
+  async function loginCustomer (
+    EMailAddress:string, Password:string
+  ):Promise<void> {
+    activeCustomerId       = undefined             // avoid re-try after failure
+    activeCustomerAddress  = undefined                                   // dto.
+    activeCustomerPassword = undefined                                   // dto.
+
+    activeDeveloperId       = undefined               // clear developer mandate
+    activeDeveloperAddress  = undefined                                  // dto.
+    activeDeveloperPassword = undefined                                  // dto.
+
+    activeAccessToken = undefined
+
+    currentCustomerId      = undefined                   // unfocus any customer
+    currentCustomerAddress = undefined                                   // dto.
+
+    let Response
+    try {
+      Response = await ResponseOf(
+        'public', 'POST', '{{application_url}}/api/auth/login', null, {
+          grant_type: 'password',
+          username:   EMailAddress,
+          password:   Password,
+          scope:      currentApplicationId
+        }
+      )
+    } catch (Signal) {
+      switch (Signal.HTTPStatus) {
+        case 401: throwError('LoginFailed: customer could not be logged in')
+        default: throw Signal
+      }
+    }
+
+    if (
+      (Response != null) &&
+      (Response.token_type === 'bearer') && ValueIsString(Response.access_token) &&
+      ValueIsString(Response.user_id)
+    ) {
+      activeCustomerId       = Response.user_id
+      activeCustomerAddress  = EMailAddress
+      activeCustomerPassword = Password
+
+      activeAccessToken = Response.access_token
+
+      currentCustomerId      = undefined     // auto-focus the logged-incustomer
+      currentCustomerAddress = undefined                                 // dto.
     } else {
       throwError('InternalError: could not analyze response for login request')
     }
@@ -1166,7 +1421,7 @@
     }
       if (Mode === 'private') {
 // @ts-ignore we definitely want to index with a literal
-        RequestOptions.headers['authorization'] = 'Bearer ' + currentAccessToken
+        RequestOptions.headers['authorization'] = 'Bearer ' + activeAccessToken
       }
 
       let RequestBody:string|Buffer
@@ -1228,8 +1483,10 @@
               }
             case (StatusCode === 401):
               if (firstAttempt) {         // try to "refresh" the access token
-                return loginDeveloper(
-                  currentDeveloperAddress as string,currentDeveloperPassword as string
+                return (
+                  activeCustomerId == null
+                  ? loginDeveloper(activeDeveloperAddress as string, activeDeveloperPassword as string)
+                  : loginCustomer (activeCustomerAddress  as string, activeCustomerPassword  as string)
                 )
                 .then(() => {                // try request again, but only once
                   ResponseOf(Mode, Method, URL, Parameters, Data, false)
