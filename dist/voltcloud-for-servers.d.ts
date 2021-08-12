@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { Buffer } from 'buffer';
 /**** VoltCloud-specific types and constants ****/
+export declare const ApplicationIdPattern: RegExp;
 export declare const ApplicationNamePattern: RegExp;
 export declare const maxApplicationNameLength = 63;
 export declare const maxEMailAddressLength = 255;
@@ -98,7 +99,7 @@ export declare function CustomerRecords(): Promise<VC_CustomerRecord[]>;
 /**** focusOnCustomer - async for for the sake of systematics only ****/
 export declare function focusOnCustomer(CustomerId: string): Promise<void>;
 /**** focusOnCustomerWithAddress ****/
-export declare function focusOnCustomerWithAddress(CustomerAddress: string): Promise<void>;
+export declare function focusOnCustomerWithAddress(EMailAddress: string): Promise<void>;
 /**** focusOnNewCustomer ****/
 export declare function focusOnNewCustomer(EMailAddress: string, Password: string): Promise<void>;
 /**** resendConfirmationEMailToCustomer ****/
