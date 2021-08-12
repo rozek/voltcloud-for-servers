@@ -258,10 +258,13 @@ var maxStorageValueLength = 1048574; // see discussion forum
 var Timeout = 30 * 1000; // request timeout given in ms
 var DashboardURL = 'https://dashboard.voltcloud.io';
 var DashboardId = 'RpYCMN';
-var currentDeveloperId;
-var currentDeveloperAddress;
-var currentDeveloperPassword; // stored for token refresh
-var currentAccessToken;
+var activeDeveloperId;
+var activeDeveloperAddress;
+var activeDeveloperPassword; // stored for token refresh
+var activeCustomerId;
+var activeCustomerAddress;
+var activeCustomerPassword; // stored for token refresh
+var activeAccessToken;
 var currentApplicationId;
 var currentApplicationURL;
 var currentCustomerId;
@@ -282,6 +285,22 @@ function actOnBehalfOfDeveloper(EMailAddress, Password) {
         });
     });
 }
+/**** actOnBehalfOfCustomer ****/
+function actOnBehalfOfCustomer(EMailAddress, Password) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    expectEMailAddress('VoltCloud customer email address', EMailAddress);
+                    expectPassword('VoltCloud customer password', Password);
+                    return [4 /*yield*/, loginCustomer(EMailAddress, Password)];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 /**** ApplicationRecords ****/
 function ApplicationRecords() {
     return __awaiter(this, void 0, void 0, function () {
@@ -289,7 +308,7 @@ function ApplicationRecords() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     return [4 /*yield*/, ResponseOf('private', 'GET', '{{dashboard_url}}/api/app')];
                 case 1:
                     Response = _a.sent();
@@ -306,7 +325,7 @@ function focusOnApplication(ApplicationId) {
             switch (_a.label) {
                 case 0:
                     expectNonEmptyString('VoltCloud application id', ApplicationId);
-                    //  assertDeveloperFocus()               // will be done by "ApplicationRecords"
+                    //  assertDeveloperMandate()             // will be done by "ApplicationRecords"
                     currentApplicationId = undefined;
                     currentApplicationURL = undefined;
                     return [4 /*yield*/, ApplicationRecords()];
@@ -335,7 +354,7 @@ function focusOnApplicationCalled(ApplicationName) {
             switch (_a.label) {
                 case 0:
                     expectApplicationName('VoltCloud application name', ApplicationName);
-                    //  assertDeveloperFocus()               // will be done by "ApplicationRecords"
+                    //  assertDeveloperMandate()             // will be done by "ApplicationRecords"
                     currentApplicationId = undefined;
                     currentApplicationURL = undefined;
                     return [4 /*yield*/, ApplicationRecords()];
@@ -363,7 +382,7 @@ function focusOnNewApplication() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    assertDeveloperFocus(); // will be done by "ApplicationRecords"
+                    assertDeveloperMandate();
                     currentApplicationId = undefined;
                     currentApplicationURL = undefined;
                     return [4 /*yield*/, ResponseOf('private', 'POST', '{{dashboard_url}}/api/app', null, {})];
@@ -383,7 +402,7 @@ function ApplicationRecord() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -421,7 +440,7 @@ function changeApplicationNameTo(ApplicationName) {
             switch (_a.label) {
                 case 0:
                     expectApplicationName('VoltCloud application name', ApplicationName);
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -465,7 +484,7 @@ function updateApplicationRecordBy(Settings) {
             switch (_a.label) {
                 case 0:
                     expectPlainObject('VoltCloud application settings', Settings);
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -509,7 +528,7 @@ function uploadToApplication(ZIPArchive) {
                     expectValue('ZIP archive', ZIPArchive);
                     if (!Buffer.isBuffer(ZIPArchive))
                         throwError('InvalidArgument: the given ZIP archive is no valid Node.js buffer');
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -553,7 +572,7 @@ function deleteApplication(ApplicationId) {
             switch (_a.label) {
                 case 0:
                     allowNonEmptyString('VoltCloud application id', ApplicationId);
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     if (ApplicationId == null) {
                         assertApplicationFocus();
                         ApplicationId = currentApplicationId;
@@ -598,7 +617,7 @@ function ApplicationStorage() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    assertDeveloperFocus();
+                    assertDeveloperOrCustomerMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -637,7 +656,7 @@ function ApplicationStorageEntry(StorageKey) {
             switch (_a.label) {
                 case 0:
                     expectStorageKey('VoltCloud application storage key', StorageKey);
-                    assertDeveloperFocus();
+                    assertDeveloperOrCustomerMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -684,7 +703,7 @@ function setApplicationStorageEntryTo(StorageKey, StorageValue) {
                 case 0:
                     expectStorageKey('VoltCloud application storage key', StorageKey);
                     expectStorageValue('VoltCloud application storage value', StorageValue);
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -728,7 +747,7 @@ function deleteApplicationStorageEntry(StorageKey) {
             switch (_a.label) {
                 case 0:
                     expectStorageKey('VoltCloud application storage key', StorageKey);
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -773,7 +792,7 @@ function clearApplicationStorage() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -811,7 +830,7 @@ function CustomerRecords() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    assertDeveloperFocus();
+                    assertDeveloperMandate();
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -850,7 +869,7 @@ function focusOnCustomer(CustomerId) {
             switch (_a.label) {
                 case 0:
                     expectNonEmptyString('VoltCloud customer id', CustomerId);
-                    //  assertDeveloperFocus()                  // will be done by "CustomerRecords"
+                    //  assertDeveloperMandate()                // will be done by "CustomerRecords"
                     //  assertApplicationFocus()                                             // dto.
                     currentCustomerId = undefined;
                     currentCustomerAddress = undefined;
@@ -880,7 +899,7 @@ function focusOnCustomerWithAddress(EMailAddress) {
             switch (_a.label) {
                 case 0:
                     expectEMailAddress('VoltCloud customer email address', EMailAddress);
-                    //  assertDeveloperFocus()                  // will be done by "CustomerRecords"
+                    //  assertDeveloperMandate()                // will be done by "CustomerRecords"
                     //  assertApplicationFocus()                                             // dto.
                     currentCustomerId = undefined;
                     currentCustomerAddress = undefined;
@@ -911,7 +930,6 @@ function focusOnNewCustomer(EMailAddress, Password) {
                 case 0:
                     expectEMailAddress('VoltCloud customer email address', EMailAddress);
                     expectPassword('VoltCloud customer password', Password);
-                    //  assertDeveloperFocus()                             // not really needed here
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -963,7 +981,6 @@ function resendConfirmationEMailToCustomer(EMailAddress) {
             switch (_a.label) {
                 case 0:
                     allowEMailAddress('VoltCloud customer email address', EMailAddress);
-                    //  assertDeveloperFocus()                             // not really needed here
                     assertApplicationFocus();
                     if (EMailAddress == null) {
                         assertCustomerFocus();
@@ -1002,7 +1019,6 @@ function confirmCustomerUsing(Token) {
             switch (_a.label) {
                 case 0:
                     expectNonEmptyString('VoltCloud customer confirmation token', Token);
-                    //  assertDeveloperFocus()                             // not really needed here
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -1033,7 +1049,6 @@ function startPasswordResetForCustomer(EMailAddress) {
             switch (_a.label) {
                 case 0:
                     allowEMailAddress('VoltCloud customer email address', EMailAddress);
-                    //  assertDeveloperFocus()                             // not really needed here
                     assertApplicationFocus();
                     if (EMailAddress == null) {
                         assertCustomerFocus();
@@ -1073,7 +1088,6 @@ function resetCustomerPasswordUsing(Token, Password) {
                 case 0:
                     expectNonEmptyString('VoltCloud password reset token', Token);
                     expectPassword('VoltCloud customer password', Password);
-                    //  assertDeveloperFocus()                             // not really needed here
                     assertApplicationFocus();
                     _a.label = 1;
                 case 1:
@@ -1101,27 +1115,211 @@ function resetCustomerPasswordUsing(Token, Password) {
 /**** CustomerRecord ****/
 function CustomerRecord(CustomerId) {
     return __awaiter(this, void 0, void 0, function () {
-        var CustomerRecordList, i, l, CustomerRecord_3;
+        var Response, CustomerRecordList, i, l, CustomerRecord_3, Signal_17;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     allowNonEmptyString('VoltCloud customer id', CustomerId);
-                    assertDeveloperFocus();
                     assertApplicationFocus();
                     if (CustomerId == null) {
                         assertCustomerFocus();
                         CustomerId = currentCustomerId;
                     }
+                    if (!(activeCustomerId == null)) return [3 /*break*/, 2];
+                    assertDeveloperMandate();
                     return [4 /*yield*/, CustomerRecords()];
                 case 1:
                     CustomerRecordList = _a.sent();
                     for (i = 0, l = CustomerRecordList.length; i < l; i++) {
                         CustomerRecord_3 = CustomerRecordList[i];
                         if (CustomerRecord_3.id = CustomerId) {
-                            return [2 /*return*/, CustomerRecord_3];
+                            Response = CustomerRecord_3;
+                            break;
                         }
                     }
-                    return [2 /*return*/, undefined];
+                    return [3 /*break*/, 6];
+                case 2:
+                    assertCustomerMandate();
+                    _a.label = 3;
+                case 3:
+                    _a.trys.push([3, 5, , 6]);
+                    return [4 /*yield*/, ResponseOf('private', 'GET', '{{application_url}}/api/user/{{customer_id}}', {
+                            customer_id: CustomerId
+                        })];
+                case 4:
+                    Response = _a.sent();
+                    return [3 /*break*/, 6];
+                case 5:
+                    Signal_17 = _a.sent();
+                    switch (Signal_17.HTTPStatus) {
+                        case 422: switch (Signal_17.message) {
+                            case 'Could not decode scope.':
+                                throwError('InvalidArgument: invalid customer id given');
+                        }
+                        default: throw Signal_17;
+                    }
+                    return [3 /*break*/, 6];
+                case 6:
+                    if ((Response != null) && (Response.id === CustomerId)) {
+                        //    currentCustomerId      = Response.id
+                        currentCustomerAddress = Response.email; // might have changed
+                        if (currentCustomerId === activeCustomerId) {
+                            activeCustomerAddress = Response.email; // might have changed
+                        }
+                        return [2 /*return*/, Response];
+                    }
+                    else {
+                        throwError('InternalError: could not analyze response for registration request');
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+/**** changeCustomerEMailAddressTo ****/
+function changeCustomerEMailAddressTo(EMailAddress) {
+    return __awaiter(this, void 0, void 0, function () {
+        var Response, Signal_18;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    expectEMailAddress('VoltCloud customer email address', EMailAddress);
+                    assertCustomerMandate();
+                    assertApplicationFocus();
+                    assertCustomerFocus();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{application_url}}/api/user/{{customer_id}}', null, {
+                            email: EMailAddress
+                        })];
+                case 2:
+                    Response = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_18 = _a.sent();
+                    switch (Signal_18.HTTPStatus) {
+                        case 404: throwError('NoSuchUser: the given customer does not exist');
+                        case 409: throwError('UserExists: the given EMail address is already in use');
+                        case 422: switch (Signal_18.message) {
+                            case 'Could not decode scope.':
+                                throwError('InvalidArgument: invalid customer id given');
+                        }
+                        default: throw Signal_18;
+                    }
+                    return [3 /*break*/, 4];
+                case 4:
+                    if ((Response != null) && (Response.id === currentCustomerId)) {
+                        //    currentCustomerId      = Response.id
+                        currentCustomerAddress = Response.email;
+                        if (currentCustomerId === activeCustomerId) {
+                            activeCustomerAddress = Response.email; // might have changed
+                        }
+                    }
+                    else {
+                        throwError('InternalError: could not analyze response for registration request');
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+/**** changeCustomerPasswordTo ****/
+function changeCustomerPasswordTo(Password) {
+    return __awaiter(this, void 0, void 0, function () {
+        var Response, Signal_19;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    expectPassword('VoltCloud customer password', Password);
+                    assertCustomerMandate();
+                    assertApplicationFocus();
+                    assertCustomerFocus();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{application_url}}/api/user/{{customer_id}}', null, {
+                            password: {
+                                old: activeCustomerPassword,
+                                new: Password,
+                                confirmation: Password
+                            }
+                        })];
+                case 2:
+                    Response = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_19 = _a.sent();
+                    switch (Signal_19.HTTPStatus) {
+                        case 403: throwError('ForbiddenOperation: wrong current password given');
+                        case 404: throwError('NoSuchUser: the given customer does not exist');
+                        case 422: switch (Signal_19.message) {
+                            case 'Could not decode scope.':
+                                throwError('InvalidArgument: invalid customer id given');
+                        }
+                        default: throw Signal_19;
+                    }
+                    return [3 /*break*/, 4];
+                case 4:
+                    if ((Response != null) && (Response.id === currentCustomerId)) {
+                        if (currentCustomerId === activeCustomerId) {
+                            activeCustomerPassword = Password;
+                        }
+                    }
+                    else {
+                        throwError('InternalError: could not analyze response for registration request');
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+/**** updateCustomerRecordBy ****/
+function updateCustomerRecordBy(Settings) {
+    return __awaiter(this, void 0, void 0, function () {
+        var Response, Signal_20;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    expectPlainObject('VoltCloud customer settings', Settings);
+                    assertCustomerMandate();
+                    assertApplicationFocus();
+                    assertCustomerFocus();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{application_url}}/api/user/{{customer_id}}', null, Settings)];
+                case 2:
+                    Response = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_20 = _a.sent();
+                    switch (Signal_20.HTTPStatus) {
+                        case 403: throwError('ForbiddenOperation: wrong current password given');
+                        case 404: throwError('NoSuchUser: the given customer does not exist');
+                        case 409: throwError('UserExists: the given EMail address is already in use');
+                        case 422: switch (Signal_20.message) {
+                            case 'Could not decode scope.':
+                                throwError('InvalidArgument: invalid customer id given');
+                        }
+                        default: throw Signal_20;
+                    }
+                    return [3 /*break*/, 4];
+                case 4:
+                    if ((Response != null) && (Response.id === currentCustomerId)) {
+                        //    currentCustomerId      = Response.id
+                        currentCustomerAddress = Response.email; // might have changed
+                        if (currentCustomerId === activeCustomerId) {
+                            activeCustomerAddress = Response.email; // might have changed
+                            if (Settings.password != null) {
+                                activeCustomerPassword = Settings.password.new;
+                            }
+                        }
+                    }
+                    else {
+                        throwError('InternalError: could not analyze response for registration request');
+                    }
+                    return [2 /*return*/];
             }
         });
     });
@@ -1129,11 +1327,11 @@ function CustomerRecord(CustomerId) {
 /**** deleteCustomer ****/
 function deleteCustomer() {
     return __awaiter(this, void 0, void 0, function () {
-        var Signal_17;
+        var Signal_21;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    assertDeveloperFocus();
+                    assertDeveloperOrCustomerMandate();
                     assertApplicationFocus();
                     assertCustomerFocus();
                     _a.label = 1;
@@ -1144,18 +1342,18 @@ function deleteCustomer() {
                     _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_17 = _a.sent();
-                    switch (Signal_17.HTTPStatus) {
+                    Signal_21 = _a.sent();
+                    switch (Signal_21.HTTPStatus) {
                         case 404:
-                            switch (Signal_17.message) {
+                            switch (Signal_21.message) {
                                 case 'User not found.': return [2 /*return*/];
                             }
                             break;
-                        case 422: switch (Signal_17.message) {
+                        case 422: switch (Signal_21.message) {
                             case 'Could not decode scope.':
                                 throwError('InvalidArgument: invalid user id given');
                         }
-                        default: throw Signal_17;
+                        default: throw Signal_21;
                     }
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
@@ -1166,11 +1364,11 @@ function deleteCustomer() {
 /**** CustomerStorage ****/
 function CustomerStorage() {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_18;
+        var Response, Signal_22;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    assertDeveloperFocus();
+                    assertDeveloperOrCustomerMandate();
                     assertApplicationFocus();
                     assertCustomerFocus();
                     _a.label = 1;
@@ -1179,182 +1377,6 @@ function CustomerStorage() {
                     return [4 /*yield*/, ResponseOf('private', 'GET', '{{dashboard_url}}/api/storage/{{customer_id}}')];
                 case 2:
                     Response = _a.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    Signal_18 = _a.sent();
-                    switch (Signal_18.HTTPStatus) {
-                        case 404:
-                            switch (Signal_18.message) {
-                                case 'Could not route your request.':
-                                case 'User not found.':
-                                    throwError('NoSuchCustomer: could not find the given customer');
-                            }
-                            break;
-                        case 422: switch (Signal_18.message) {
-                            case 'Could not decode scope.':
-                                throwError('InvalidArgument: invalid customer id given');
-                        }
-                        default: throw Signal_18;
-                    }
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/, Response || {}];
-            }
-        });
-    });
-}
-/**** CustomerStorageEntry ****/
-function CustomerStorageEntry(StorageKey) {
-    return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_19;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    expectStorageKey('VoltCloud customer storage key', StorageKey);
-                    assertDeveloperFocus();
-                    assertApplicationFocus();
-                    assertCustomerFocus();
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('private', 'GET', '{{dashboard_url}}/api/storage/{{customer_id}}/key/{{customer_storage_key}}', {
-                            customer_storage_key: StorageKey
-                        })];
-                case 2:
-                    Response = _a.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    Signal_19 = _a.sent();
-                    switch (Signal_19.HTTPStatus) {
-                        case 404:
-                            switch (Signal_19.message) {
-                                case 'Could not route your request.':
-                                    throwError('NoSuchCustomer: could not find the given customer or storage key');
-                                case 'User not found.':
-                                    throwError('NoSuchCustomer: could not find the given customer');
-                                case 'Key does not exist.':
-                                    return [2 /*return*/, undefined];
-                            }
-                            break;
-                        case 422: switch (Signal_19.message) {
-                            case 'Could not decode scope.':
-                                throwError('InvalidArgument: invalid customer id given');
-                            case 'The length of the key parameter must be <=255.':
-                                throwError('InvalidArgument: the given storage key is too long');
-                        }
-                        default: throw Signal_19;
-                    }
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/, Response];
-            }
-        });
-    });
-}
-/**** setCustomerStorageEntryTo ****/
-function setCustomerStorageEntryTo(StorageKey, StorageValue) {
-    return __awaiter(this, void 0, void 0, function () {
-        var Signal_20;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    expectStorageKey('VoltCloud customer storage key', StorageKey);
-                    expectStorageValue('VoltCloud customer storage value', StorageValue);
-                    assertDeveloperFocus();
-                    assertApplicationFocus();
-                    assertCustomerFocus();
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{dashboard_url}}/api/storage/{{customer_id}}/key/{{customer_storage_key}}', {
-                            customer_storage_key: StorageKey
-                        }, StorageValue)];
-                case 2:
-                    _a.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    Signal_20 = _a.sent();
-                    switch (Signal_20.HTTPStatus) {
-                        case 404:
-                            switch (Signal_20.message) {
-                                case 'Could not route your request.':
-                                case 'User not found.':
-                                    throwError('NoSuchCustomer: could not find the given customer');
-                            }
-                            break;
-                        case 413: throwError('InvalidArgument: the given storage value is too long');
-                        case 422: switch (Signal_20.message) {
-                            case 'Could not decode scope.':
-                                throwError('InvalidArgument: invalid customer id given');
-                            case 'The length of the key parameter must be <=255.':
-                                throwError('InvalidArgument: the given storage key is too long');
-                        }
-                        default: throw Signal_20;
-                    }
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
-            }
-        });
-    });
-}
-/**** deleteCustomerStorageEntry ****/
-function deleteCustomerStorageEntry(StorageKey) {
-    return __awaiter(this, void 0, void 0, function () {
-        var Signal_21;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    expectStorageKey('VoltCloud customer storage key', StorageKey);
-                    assertDeveloperFocus();
-                    assertApplicationFocus();
-                    assertCustomerFocus();
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('private', 'DELETE', '{{dashboard_url}}/api/storage/{{customer_id}}/key/{{customer_storage_key}}', {
-                            customer_storage_key: StorageKey
-                        })];
-                case 2:
-                    _a.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    Signal_21 = _a.sent();
-                    switch (Signal_21.HTTPStatus) {
-                        case 404:
-                            switch (Signal_21.message) {
-                                case 'Could not route your request.':
-                                case 'User not found.':
-                                    throwError('NoSuchCustomer: could not find the given customer');
-                            }
-                            break;
-                        case 422: switch (Signal_21.message) {
-                            case 'Could not decode scope.':
-                                throwError('InvalidArgument: invalid customer id given');
-                            case 'The length of the key parameter must be <=255.':
-                                throwError('InvalidArgument: the given storage key is too long');
-                        }
-                        default: throw Signal_21;
-                    }
-                    return [3 /*break*/, 4];
-                case 4: return [2 /*return*/];
-            }
-        });
-    });
-}
-/**** clearCustomerStorage ****/
-function clearCustomerStorage() {
-    return __awaiter(this, void 0, void 0, function () {
-        var Signal_22;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    assertDeveloperFocus();
-                    assertApplicationFocus();
-                    assertCustomerFocus();
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, ResponseOf('private', 'DELETE', '{{dashboard_url}}/api/storage/{{customer_id}}')];
-                case 2:
-                    _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
                     Signal_22 = _a.sent();
@@ -1371,6 +1393,182 @@ function clearCustomerStorage() {
                                 throwError('InvalidArgument: invalid customer id given');
                         }
                         default: throw Signal_22;
+                    }
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/, Response || {}];
+            }
+        });
+    });
+}
+/**** CustomerStorageEntry ****/
+function CustomerStorageEntry(StorageKey) {
+    return __awaiter(this, void 0, void 0, function () {
+        var Response, Signal_23;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    expectStorageKey('VoltCloud customer storage key', StorageKey);
+                    assertDeveloperOrCustomerMandate();
+                    assertApplicationFocus();
+                    assertCustomerFocus();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'GET', '{{dashboard_url}}/api/storage/{{customer_id}}/key/{{customer_storage_key}}', {
+                            customer_storage_key: StorageKey
+                        })];
+                case 2:
+                    Response = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_23 = _a.sent();
+                    switch (Signal_23.HTTPStatus) {
+                        case 404:
+                            switch (Signal_23.message) {
+                                case 'Could not route your request.':
+                                    throwError('NoSuchCustomer: could not find the given customer or storage key');
+                                case 'User not found.':
+                                    throwError('NoSuchCustomer: could not find the given customer');
+                                case 'Key does not exist.':
+                                    return [2 /*return*/, undefined];
+                            }
+                            break;
+                        case 422: switch (Signal_23.message) {
+                            case 'Could not decode scope.':
+                                throwError('InvalidArgument: invalid customer id given');
+                            case 'The length of the key parameter must be <=255.':
+                                throwError('InvalidArgument: the given storage key is too long');
+                        }
+                        default: throw Signal_23;
+                    }
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/, Response];
+            }
+        });
+    });
+}
+/**** setCustomerStorageEntryTo ****/
+function setCustomerStorageEntryTo(StorageKey, StorageValue) {
+    return __awaiter(this, void 0, void 0, function () {
+        var Signal_24;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    expectStorageKey('VoltCloud customer storage key', StorageKey);
+                    expectStorageValue('VoltCloud customer storage value', StorageValue);
+                    assertDeveloperOrCustomerMandate();
+                    assertApplicationFocus();
+                    assertCustomerFocus();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'PUT', '{{dashboard_url}}/api/storage/{{customer_id}}/key/{{customer_storage_key}}', {
+                            customer_storage_key: StorageKey
+                        }, StorageValue)];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_24 = _a.sent();
+                    switch (Signal_24.HTTPStatus) {
+                        case 404:
+                            switch (Signal_24.message) {
+                                case 'Could not route your request.':
+                                case 'User not found.':
+                                    throwError('NoSuchCustomer: could not find the given customer');
+                            }
+                            break;
+                        case 413: throwError('InvalidArgument: the given storage value is too long');
+                        case 422: switch (Signal_24.message) {
+                            case 'Could not decode scope.':
+                                throwError('InvalidArgument: invalid customer id given');
+                            case 'The length of the key parameter must be <=255.':
+                                throwError('InvalidArgument: the given storage key is too long');
+                        }
+                        default: throw Signal_24;
+                    }
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+/**** deleteCustomerStorageEntry ****/
+function deleteCustomerStorageEntry(StorageKey) {
+    return __awaiter(this, void 0, void 0, function () {
+        var Signal_25;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    expectStorageKey('VoltCloud customer storage key', StorageKey);
+                    assertDeveloperOrCustomerMandate();
+                    assertApplicationFocus();
+                    assertCustomerFocus();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'DELETE', '{{dashboard_url}}/api/storage/{{customer_id}}/key/{{customer_storage_key}}', {
+                            customer_storage_key: StorageKey
+                        })];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_25 = _a.sent();
+                    switch (Signal_25.HTTPStatus) {
+                        case 404:
+                            switch (Signal_25.message) {
+                                case 'Could not route your request.':
+                                case 'User not found.':
+                                    throwError('NoSuchCustomer: could not find the given customer');
+                            }
+                            break;
+                        case 422: switch (Signal_25.message) {
+                            case 'Could not decode scope.':
+                                throwError('InvalidArgument: invalid customer id given');
+                            case 'The length of the key parameter must be <=255.':
+                                throwError('InvalidArgument: the given storage key is too long');
+                        }
+                        default: throw Signal_25;
+                    }
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
+/**** clearCustomerStorage ****/
+function clearCustomerStorage() {
+    return __awaiter(this, void 0, void 0, function () {
+        var Signal_26;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    assertDeveloperOrCustomerMandate();
+                    assertApplicationFocus();
+                    assertCustomerFocus();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('private', 'DELETE', '{{dashboard_url}}/api/storage/{{customer_id}}')];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_26 = _a.sent();
+                    switch (Signal_26.HTTPStatus) {
+                        case 404:
+                            switch (Signal_26.message) {
+                                case 'Could not route your request.':
+                                case 'User not found.':
+                                    throwError('NoSuchCustomer: could not find the given customer');
+                            }
+                            break;
+                        case 422: switch (Signal_26.message) {
+                            case 'Could not decode scope.':
+                                throwError('InvalidArgument: invalid customer id given');
+                        }
+                        default: throw Signal_26;
                     }
                     return [3 /*break*/, 4];
                 case 4: return [2 /*return*/];
@@ -1409,15 +1607,25 @@ function ValueIsStorageValue(Value) {
 /**** allow/expect[ed]StorageValue ****/
 var allowStorageValue = ValidatorForClassifier(ValueIsStorageValue, acceptNil, 'suitable VoltCloud storage value'), allowedStorageValue = allowStorageValue;
 var expectStorageValue = ValidatorForClassifier(ValueIsStorageValue, rejectNil, 'suitable VoltCloud storage value'), expectedStorageValue = expectStorageValue;
+/**** assertDeveloperMandate ****/
+function assertDeveloperMandate() {
+    if (activeDeveloperId == null)
+        throwError('InvalidState: please mandate a specific VoltCloud developer first');
+}
+/**** assertCustomerMandate ****/
+function assertCustomerMandate() {
+    if (activeCustomerId == null)
+        throwError('InvalidState: please mandate a specific VoltCloud customer first');
+}
+/**** assertDeveloperOrCustomerMandate ****/
+function assertDeveloperOrCustomerMandate() {
+    if ((activeDeveloperId == null) && (activeCustomerId == null))
+        throwError('InvalidState: please mandate a specific VoltCloud developer or customer first');
+}
 /**** assertApplicationFocus ****/
 function assertApplicationFocus() {
     if (currentApplicationId == null)
         throwError('InvalidState: please focus on a specific VoltCloud application first');
-}
-/**** assertDeveloperFocus ****/
-function assertDeveloperFocus() {
-    if (currentDeveloperId == null)
-        throwError('InvalidState: please focus on a specific VoltCloud developer first');
 }
 /**** assertCustomerFocus ****/
 function assertCustomerFocus() {
@@ -1427,14 +1635,19 @@ function assertCustomerFocus() {
 /**** loginDeveloper ****/
 function loginDeveloper(EMailAddress, Password) {
     return __awaiter(this, void 0, void 0, function () {
-        var Response, Signal_23;
+        var Response, Signal_27;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    currentDeveloperId = undefined; // avoid re-try after failure
-                    currentDeveloperAddress = undefined; // dto.
-                    currentDeveloperPassword = undefined; // dto.
-                    currentAccessToken = undefined; // dto.
+                    activeDeveloperId = undefined; // avoid re-try after failure
+                    activeDeveloperAddress = undefined; // dto.
+                    activeDeveloperPassword = undefined; // dto.
+                    activeCustomerId = undefined; // clear customer mandate
+                    activeCustomerAddress = undefined; // dto.
+                    activeCustomerPassword = undefined; // dto.
+                    activeAccessToken = undefined;
+                    currentCustomerId = undefined; // unfocus any customer
+                    currentCustomerAddress = undefined; // dto.
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
@@ -1448,20 +1661,74 @@ function loginDeveloper(EMailAddress, Password) {
                     Response = _a.sent();
                     return [3 /*break*/, 4];
                 case 3:
-                    Signal_23 = _a.sent();
-                    switch (Signal_23.HTTPStatus) {
+                    Signal_27 = _a.sent();
+                    switch (Signal_27.HTTPStatus) {
                         case 401: throwError('LoginFailed: developer could not be logged in');
-                        default: throw Signal_23;
+                        default: throw Signal_27;
                     }
                     return [3 /*break*/, 4];
                 case 4:
                     if ((Response != null) &&
                         (Response.token_type === 'bearer') && ValueIsString(Response.access_token) &&
                         ValueIsString(Response.user_id)) {
-                        currentDeveloperId = Response.user_id;
-                        currentDeveloperAddress = EMailAddress;
-                        currentDeveloperPassword = Password;
-                        currentAccessToken = Response.access_token;
+                        activeDeveloperId = Response.user_id;
+                        activeDeveloperAddress = EMailAddress;
+                        activeDeveloperPassword = Password;
+                        activeAccessToken = Response.access_token;
+                    }
+                    else {
+                        throwError('InternalError: could not analyze response for login request');
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+/**** loginCustomer ****/
+function loginCustomer(EMailAddress, Password) {
+    return __awaiter(this, void 0, void 0, function () {
+        var Response, Signal_28;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    activeCustomerId = undefined; // avoid re-try after failure
+                    activeCustomerAddress = undefined; // dto.
+                    activeCustomerPassword = undefined; // dto.
+                    activeDeveloperId = undefined; // clear developer mandate
+                    activeDeveloperAddress = undefined; // dto.
+                    activeDeveloperPassword = undefined; // dto.
+                    activeAccessToken = undefined;
+                    currentCustomerId = undefined; // unfocus any customer
+                    currentCustomerAddress = undefined; // dto.
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, ResponseOf('public', 'POST', '{{application_url}}/api/auth/login', null, {
+                            grant_type: 'password',
+                            username: EMailAddress,
+                            password: Password,
+                            scope: currentApplicationId
+                        })];
+                case 2:
+                    Response = _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    Signal_28 = _a.sent();
+                    switch (Signal_28.HTTPStatus) {
+                        case 401: throwError('LoginFailed: customer could not be logged in');
+                        default: throw Signal_28;
+                    }
+                    return [3 /*break*/, 4];
+                case 4:
+                    if ((Response != null) &&
+                        (Response.token_type === 'bearer') && ValueIsString(Response.access_token) &&
+                        ValueIsString(Response.user_id)) {
+                        activeCustomerId = Response.user_id;
+                        activeCustomerAddress = EMailAddress;
+                        activeCustomerPassword = Password;
+                        activeAccessToken = Response.access_token;
+                        currentCustomerId = undefined; // auto-focus the logged-incustomer
+                        currentCustomerAddress = undefined; // dto.
                     }
                     else {
                         throwError('InternalError: could not analyze response for login request');
@@ -1496,7 +1763,7 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
             };
             if (Mode === 'private') {
                 // @ts-ignore we definitely want to index with a literal
-                RequestOptions.headers['authorization'] = 'Bearer ' + currentAccessToken;
+                RequestOptions.headers['authorization'] = 'Bearer ' + activeAccessToken;
             }
             if (Data != null) {
                 if (Buffer.isBuffer(Data)) {
@@ -1550,7 +1817,9 @@ function ResponseOf(Mode, Method, URL, Parameters, Data, firstAttempt) {
                                     }
                                 case (StatusCode === 401):
                                     if (firstAttempt) { // try to "refresh" the access token
-                                        return loginDeveloper(currentDeveloperAddress, currentDeveloperPassword)
+                                        return (activeCustomerId == null
+                                            ? loginDeveloper(activeDeveloperAddress, activeDeveloperPassword)
+                                            : loginCustomer(activeCustomerAddress, activeCustomerPassword))
                                             .then(function () {
                                             ResponseOf(Mode, Method, URL, Parameters, Data, false)
                                                 .then(function (Result) { return resolve(Result); })
@@ -1680,5 +1949,5 @@ function ValidationError(Details) {
     return namedError('InternalError: ' + Details.message, Details);
 }
 
-export { ApplicationIdPattern, ApplicationNamePattern, ApplicationRecord, ApplicationRecords, ApplicationStorage, ApplicationStorageEntry, CustomerRecord, CustomerRecords, CustomerStorage, CustomerStorageEntry, ValueIsApplicationName, ValueIsPassword, ValueIsStorageKey, ValueIsStorageValue, actOnBehalfOfDeveloper, allowApplicationName, allowPassword, allowStorageKey, allowStorageValue, allowedApplicationName, allowedPassword, allowedStorageKey, allowedStorageValue, changeApplicationNameTo, clearApplicationStorage, clearCustomerStorage, confirmCustomerUsing, deleteApplication, deleteApplicationStorageEntry, deleteCustomer, deleteCustomerStorageEntry, expectApplicationName, expectPassword, expectStorageKey, expectStorageValue, expectedApplicationName, expectedPassword, expectedStorageKey, expectedStorageValue, focusOnApplication, focusOnApplicationCalled, focusOnCustomer, focusOnCustomerWithAddress, focusOnNewApplication, focusOnNewCustomer, maxApplicationNameLength, maxEMailAddressLength, maxNamePartLength, maxStorageKeyLength, maxStorageValueLength, resendConfirmationEMailToCustomer, resetCustomerPasswordUsing, setApplicationStorageEntryTo, setCustomerStorageEntryTo, startPasswordResetForCustomer, updateApplicationRecordBy, uploadToApplication };
+export { ApplicationIdPattern, ApplicationNamePattern, ApplicationRecord, ApplicationRecords, ApplicationStorage, ApplicationStorageEntry, CustomerRecord, CustomerRecords, CustomerStorage, CustomerStorageEntry, ValueIsApplicationName, ValueIsPassword, ValueIsStorageKey, ValueIsStorageValue, actOnBehalfOfCustomer, actOnBehalfOfDeveloper, allowApplicationName, allowPassword, allowStorageKey, allowStorageValue, allowedApplicationName, allowedPassword, allowedStorageKey, allowedStorageValue, changeApplicationNameTo, changeCustomerEMailAddressTo, changeCustomerPasswordTo, clearApplicationStorage, clearCustomerStorage, confirmCustomerUsing, deleteApplication, deleteApplicationStorageEntry, deleteCustomer, deleteCustomerStorageEntry, expectApplicationName, expectPassword, expectStorageKey, expectStorageValue, expectedApplicationName, expectedPassword, expectedStorageKey, expectedStorageValue, focusOnApplication, focusOnApplicationCalled, focusOnCustomer, focusOnCustomerWithAddress, focusOnNewApplication, focusOnNewCustomer, maxApplicationNameLength, maxEMailAddressLength, maxNamePartLength, maxStorageKeyLength, maxStorageValueLength, resendConfirmationEMailToCustomer, resetCustomerPasswordUsing, setApplicationStorageEntryTo, setCustomerStorageEntryTo, startPasswordResetForCustomer, updateApplicationRecordBy, updateCustomerRecordBy, uploadToApplication };
 //# sourceMappingURL=voltcloud-for-servers.esm.js.map

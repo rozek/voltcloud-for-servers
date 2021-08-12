@@ -66,6 +66,8 @@ export declare type VC_StorageSet = {
 };
 /**** actOnBehalfOfDeveloper ****/
 export declare function actOnBehalfOfDeveloper(EMailAddress: string, Password: string): Promise<void>;
+/**** actOnBehalfOfCustomer ****/
+export declare function actOnBehalfOfCustomer(EMailAddress: string, Password: string): Promise<void>;
 /**** ApplicationRecords ****/
 export declare function ApplicationRecords(): Promise<VC_ApplicationRecord[]>;
 /**** focusOnApplication - async for for the sake of systematics only ****/
@@ -112,6 +114,12 @@ export declare function startPasswordResetForCustomer(EMailAddress?: string): Pr
 export declare function resetCustomerPasswordUsing(Token: string, Password: string): Promise<void>;
 /**** CustomerRecord ****/
 export declare function CustomerRecord(CustomerId?: string): Promise<VC_CustomerRecord | undefined>;
+/**** changeCustomerEMailAddressTo ****/
+export declare function changeCustomerEMailAddressTo(EMailAddress: string): Promise<void>;
+/**** changeCustomerPasswordTo ****/
+export declare function changeCustomerPasswordTo(Password: string): Promise<void>;
+/**** updateCustomerRecordBy ****/
+export declare function updateCustomerRecordBy(Settings: VC_CustomerUpdate): Promise<void>;
 /**** deleteCustomer ****/
 export declare function deleteCustomer(): Promise<void>;
 /**** CustomerStorage ****/
