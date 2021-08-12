@@ -57,7 +57,7 @@ Just copy that statement into your source code and remove all unwanted functions
 
 `voltcloud-for-servers` exports the following constants:
 
-* **`const ApplicationNamePattern = /^[0-9a-z][-0-9a-z]*$/`**<br>this value defines the regular expression pattern, any VoltCloud application name must match to
+* **`const ApplicationNamePattern = /^([a-z0-9]|[a-z0-9][-a-z0-9]*[a-z0-9])$/`**<br>this value defines the regular expression pattern, any VoltCloud application name must match to
 * **`const maxApplicationNameLength = 63`**<br>this value defines the maximum length of any VoltCloud application name
 * **`const maxEMailAddressLength = 255`**<br>this value defines the maximum length of the email address used to identify developers and customers
 * **`const maxNamePartLength = 255`**<br>this value defines the maximum length of the first or last name of any customer
