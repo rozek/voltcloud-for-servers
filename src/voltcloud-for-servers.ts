@@ -122,29 +122,34 @@
 /**** focusOnApplication - async for for the sake of systematics only ****/
 
   export async function focusOnApplication (
-    ApplicationId:string
+    ApplicationIdOrURL:string
   ):Promise<void> {
-    expectNonEmptyString('VoltCloud application id',ApplicationId)
+    if (activeCustomerId == null) {
+      expectNonEmptyString('VoltCloud application id',ApplicationIdOrURL)
 
-//  assertDeveloperMandate()             // will be done by "ApplicationRecords"
+      assertDeveloperMandate()
 
-    currentApplicationId  = undefined
-    currentApplicationURL = undefined
+      currentApplicationId  = undefined
+      currentApplicationURL = undefined
 
-    let ApplicationRecordList = await ApplicationRecords()
-    for (let i = 0, l = ApplicationRecordList.length; i < l; i++) {
-      let ApplicationRecord = ApplicationRecordList[i]
-      if (ApplicationRecord.id === ApplicationId) {
-        currentApplicationId  = ApplicationId
-        currentApplicationURL = ApplicationRecord.url
-        return
+      let ApplicationRecordList = await ApplicationRecords()
+      for (let i = 0, l = ApplicationRecordList.length; i < l; i++) {
+        let ApplicationRecord = ApplicationRecordList[i]
+        if (ApplicationRecord.id === ApplicationIdOrURL) {
+          currentApplicationId  = ApplicationIdOrURL
+          currentApplicationURL = ApplicationRecord.url
+          return
+        }
       }
-    }
 
-    throwError(
-      'NoSuchApplication: no application with id ' + quoted(ApplicationId) +
-      ' found for the currently focused developer'
-    )
+      throwError(
+        'NoSuchApplication: no application with id ' + quoted(ApplicationIdOrURL) +
+        ' found for the currently focused developer'
+      )
+    } else {   // customers do not need a mandate for focusing on an application
+      currentApplicationId  = undefined
+      currentApplicationURL = ApplicationIdOrURL
+    }
   }
 
 /**** focusOnApplicationCalled ****/
@@ -578,8 +583,8 @@
   ):Promise<void> {
     expectNonEmptyString('VoltCloud customer id',CustomerId)
 
-//  assertDeveloperMandate()                // will be done by "CustomerRecords"
-//  assertApplicationFocus()                                             // dto.
+    assertDeveloperMandate()
+    assertApplicationFocus()
 
     currentCustomerId      = undefined
     currentCustomerAddress = undefined
@@ -607,8 +612,8 @@
   ):Promise<void> {
     expectEMailAddress('VoltCloud customer email address',EMailAddress)
 
-//  assertDeveloperMandate()                // will be done by "CustomerRecords"
-//  assertApplicationFocus()                                             // dto.
+    assertDeveloperMandate()
+    assertApplicationFocus()
 
     currentCustomerId      = undefined
     currentCustomerAddress = undefined
@@ -1275,7 +1280,7 @@
 /**** assertApplicationFocus ****/
 
   function assertApplicationFocus ():void {
-    if (currentApplicationId == null) throwError(
+    if (currentApplicationURL == null) throwError(
       'InvalidState: please focus on a specific VoltCloud application first'
     )
   }
@@ -1543,6 +1548,8 @@
         })
 
         if (RequestBody != null) { Request.write(RequestBody) }
+console.log('  >>',Request.method,resolvedURL)
+if (Request.getHeader('Content-Type') != null) console.log('  >>',Request.getHeader('Content-Type'))
       Request.end()
     })
   }
